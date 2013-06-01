@@ -1,6 +1,17 @@
+title() {
+    tput setaf 4
+    echo -n " :: "
+    tput sgr0
+    echo "$*"
+}
+
+debug() {
+    echo "$*" 1>&2
+}
+
 # convert string to hook
 slug() {
-    tr -d [:cntrl:][:punct:] | tr -s [:space:] - | tr -s [:upper:] [:lower:] <<< "$*"
+    tr -d [:cntrl:][:punct:] <<< "$*" | tr -s [:space:] - | tr -s [:upper:] [:lower:]
 }
 
 # get meta from file heading
@@ -25,13 +36,13 @@ listIncludeName() {
 # get tag offset and tag
 # $1: template string
 listStartEndControlTag() {
-    grep -oba "{% \(foreach .\+\|if .\+\|endif\|endforeach\) %}" <<<"$1"
+    grep -oba "{% \(foreach [a-z]\+\|if \(! \)\?[a-z]\+\|endif\|endforeach\) %}" <<<"$1"
 }
 
 # check if the tag is start tag
 # $1: template string
 isStartTag() {
-    grep -q "^{% \(foreach .\+\|if .\+\) %}$" <<<"$1"
+    grep -q "^{% \(foreach [a-z]\+\|if \(! \)\?[a-z]\+\) %}$" <<<"$1"
 }
 
 # get tag name from tag
@@ -49,8 +60,8 @@ tagContext() {
 # get end tag from start tag
 # $1: start tag
 endTagOf() {
-    grep -q "^{% foreach .\+ %}$" <<<"$1" && echo "{% endforeach %}"
-    grep -q "^{% if .\+ %}$" <<<"$1" && echo "{% endif %}"
+    grep -q "^{% foreach [a-z]\+ %}$" <<<"$1" && echo "{% endforeach %}"
+    grep -q "^{% if \(! \)\?[a-z]\+ %}$" <<<"$1" && echo "{% endif %}"
 }
 
 stackPush() {
@@ -70,6 +81,7 @@ stackPeek() {
 }
 
 # match end tag
+# $1: template string
 checkTag() {
     local IFS=$'\n'
     local stack=()
@@ -89,23 +101,28 @@ checkTag() {
         else
             endTag="$(endTagOf "$(stackPeek)")"
             stackPop
-            [[ "$endTag" != "$tag" ]] && return
+            if [[ "$endTag" != "$tag" ]]; then
+                debug "template error: expecting '$endtag' instead of '$tag'"
+                debug "---"
+                debug "$1"
+                debug "---"
+                continue
+            fi
             [[ "${#stack[@]}" == 0 ]] && echo "$startTag:$((startOffset + ${#startTag} )):$(( $offset - $startOffset - ${#startTag} ))"
         fi
     done
 }
 
 # $1: tag
-# $2: content
+# $2: template string
 # $3: context
 doForeach() {
     local context="$(tagContext "$1")"
     eval "declare -A vars=${3#*=}"
-    #echo "$1"
     local i=0
     while [[ "${vars[${context}.${i}]}" ]]; do
         local thisContext="${vars[${context}.${i}]}"
-        #echo "run $i times"
+        #debug "run $i times"
         eval "declare -A subvars=${thisContext#*=}"
         local j
         for j in "${!subvars[@]}"; do
@@ -118,16 +135,16 @@ doForeach() {
 
 
 # $1: tag
-# $2: content
+# $2: template string
 # $3: context
 doIf() {
     local context="$(tagContext "$1")"
     eval "declare -A vars=${3#*=}"
     if [[ "$context" =~ ^! ]]; then
         context="${context##*!}"
-        [[ "vars[$context]" == true ]] || doTag "$2" "$3"
+        [[ "vars[$context]" != false ]] || doTag "$2" "$3"
     else
-        [[ "vars[$context]" == true ]] && doTag "$2" "$3"
+        [[ "vars[$context]" != false ]] && doTag "$2" "$3"
     fi
 }
 
@@ -138,7 +155,7 @@ doTag() {
     local lastStartOffset=0
     local instance
     for instance in $(checkTag "$1"); do
-        #echo "$instance"
+        #debug "$instance"
         local tag="$(cut -d : -f 1 <<< "$instance")"
         local endTag="$(endTagOf "$tag")"
         local tagName="$(tagName "$tag")"
@@ -199,7 +216,8 @@ doTemplate() {
 doInclude() {
     local includes="$THEME_DIR/$INCLUDE_DIR/$1$INCLUDE_EXT"
     if [[ ! -f "$includes" ]]; then
-        echo "include not found: $includes"
+        debug "include not found: $includes"
+        return
     fi
     doTemplate "$includes" "$2"
 }
@@ -210,7 +228,8 @@ doInclude() {
 doLayout() {
     local layouts="$THEME_DIR/$LAYOUT_DIR/$1$LAYOUT_EXT"
     if [[ ! -f "$layouts" ]]; then
-        echo "layout not found: $layouts"
+        debug "layout not found: $layouts"
+        return
     fi
     doTemplate "$layouts" "$2"
 }
