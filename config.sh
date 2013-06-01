@@ -1,5 +1,5 @@
 # def
-readonly OUTPUT_DIR=bakery
+readonly OUTPUT_DIR=taylorchu.github.io
 readonly OUTPUT_EXT=.html
 readonly POST_DIR=posts
 readonly POST_EXT=.md
