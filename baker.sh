@@ -2,6 +2,9 @@
 
 source config.sh
 source library.sh
+source array.sh
+source layout.sh
+source posts.sh
 
 case "$1" in
     bake)
@@ -11,18 +14,16 @@ case "$1" in
         i=0
         for src in $(ls "$POST_DIR" | grep "\.md$" | sort -r); do
             dest="$(basename $src $POST_EXT)$OUTPUT_EXT"
-            title "$POST_DIR/$src -> $OUTPUT_DIR/$dest"
-            layout="$(header "$POST_DIR/$src" layout)"
-            title="$(header "$POST_DIR/$src" title)"
-            date="$(header "$POST_DIR/$src" date)"
-            content="$(body "$POST_DIR/$src" | ./Markdown.pl)"
-            declare -A vars=([SITE_NAME]="$SITE_NAME" [AUTHOR]="$AUTHOR" [title]="$title" [date]="$date" [content]="$content" [link]="$dest")
-            indexVars[post.${i}]="$(declare -p vars)"
-            doLayout "$layout" "$(declare -p vars)" | sed '/^[ ]*$/d' > "$OUTPUT_DIR/$dest"
+            important "$POST_DIR/$src -> $OUTPUT_DIR/$dest"
+            # site name link
+            declare -A base=([SITE_NAME]="$SITE_NAME" [AUTHOR]="$AUTHOR" [link]="$dest")
+            pageVars="$(toString "$(declare -p base)" "$(postContent "$POST_DIR/$src")")"
+            indexVars[post.${i}]="$pageVars"
+            doLayout "$(header "$POST_DIR/$src" layout)" "$pageVars" > "$OUTPUT_DIR/$dest"
             (( i++ ))
         done
-        title "creating index"
-        doLayout "index" "$(declare -p indexVars)" | sed '/^[ ]*$/d' > "$OUTPUT_DIR/index$OUTPUT_EXT"
+        important "creating index"
+        doLayout "index" "$(toString "$(declare -p indexVars)")" > "$OUTPUT_DIR/index$OUTPUT_EXT"
     ;;
     new)
         if [[ -z "${*:2}" ]]; then
@@ -31,7 +32,7 @@ case "$1" in
         fi
 
         title="$(date +%Y-%m-%d)-$(slug ${*:2})"
-        title "$title is ready in '$POST_DIR'"
+        important "$title is ready in '$POST_DIR'"
         cat > "$POST_DIR/$title$POST_EXT" <<EOF
 ---
 layout: post
