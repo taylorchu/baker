@@ -17,3 +17,9 @@ readonly JAVASCRIPT_DIR=javascripts
 # general
 readonly SITE_NAME="the denorm guy"
 readonly AUTHOR="tai"
+
+# extension
+readonly SNIPPET_DIR=snippets
+
+# library
+readonly LIBRARY_DIR=libraries

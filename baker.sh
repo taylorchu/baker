@@ -1,9 +1,11 @@
 #!/bin/bash
 
 source config.sh
-source libraries/common.sh
-source libraries/posts.sh
-source libraries/layout.sh
+
+# include
+for ext in $(find "$LIBRARY_DIR" "$SNIPPET_DIR" -name "*.sh"); do
+    source "$ext"
+done
 
 prepareOutputDir() {
     rm -rf "$OUTPUT_DIR"/*
@@ -13,10 +15,10 @@ prepareOutputDir() {
 createEachPost() {
     local base="([SITE_NAME]='$SITE_NAME' [AUTHOR]='$AUTHOR')"
     local src
-    for src in $(ls "$POST_DIR" | grep "\.md$"); do
+    for src in $(find "$POST_DIR" -name "*.md"); do
         dest="$(basename $src $POST_EXT)$OUTPUT_EXT"
-        headline "$POST_DIR/$src -> $OUTPUT_DIR/$dest"
-        doLayout "$(header "$POST_DIR/$src" layout)" "$(toString "$base" "([link]=$dest)" "$(getPost "$POST_DIR/$src")")" > "$OUTPUT_DIR/$dest"
+        headline "$src -> $OUTPUT_DIR/$dest"
+        doLayout "$(header "$src" layout)" "$(toString "$base" "([link]=$dest)" "$(getPost "$src")")" > "$OUTPUT_DIR/$dest"
     done
 }
 
@@ -26,8 +28,8 @@ createIndex() {
     declare -A indexVars
     local i=0
     local src
-    for src in $(ls "$POST_DIR" | grep "\.md$" | sort -r); do
-        indexVars[post.${i}]="$(toString "$base" "([link]=$dest)" "$(getPost "$POST_DIR/$src")")"
+    for src in $(find "$POST_DIR" -name "*.md" | sort -r); do
+        indexVars[post.${i}]="$(toString "$base" "([link]=$dest)" "$(getPost "$src")")"
         (( i++ ))
     done  
     doLayout "index" "$(toString "$base" "$(declare -p indexVars)")" > "$OUTPUT_DIR/index$OUTPUT_EXT" 
