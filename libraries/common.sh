@@ -17,9 +17,10 @@ slug() {
 # $@: variable strings
 toString() {
     declare -A _var
+    local arg
     for arg in "$@"; do
-        local i
         eval "declare -A _var2=${arg#*=}" 2>/dev/null || eval "declare -A _var2=$arg"
+        local i
         for i in "${!_var2[@]}"; do
             _var[$i]="${_var2[$i]}"
         done
@@ -27,7 +28,7 @@ toString() {
     declare -p _var | clean
 }
 
-# $1 variable name, declared
+# $1: variable name, declared
 toArray() {
     eval "declare -A _var=$(toString "${@:2}")"
     local i
@@ -36,11 +37,15 @@ toArray() {
     done
 }
 
+# strip declare
 clean() {
     local str="$(cat -)"
-    echo "'${str#*\'}"
+    echo "${str#*=}"
 }
 
+# $1: variable name, declared
+# $2: append index
+# $3: append value
 appendTo() {
     eval "declare -A _var=$1"
     _var[$2]="$3"
