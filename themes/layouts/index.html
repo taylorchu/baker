@@ -2,6 +2,5 @@
 layout: default
 ---
 {% foreach post %}
-    <h2 class="content-subhead">{{ post.title }}</h2>
-    <p>{{ post.date }} <a class="pure-button" href="{{ post.link }}">permalink</a></p>
+    <h2 class="content-subhead">{{ date }} - <a href="{{ link }}">{{ title }}</a></h2>
 {% endforeach %}

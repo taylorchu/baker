@@ -106,12 +106,7 @@ doForeach() {
     local i=0
     while [[ "${vars[${context}.${i}]}" ]]; do
         #debug "run $i times"
-        eval "declare -A subvars=${vars[${context}.${i}]}"
-        local j
-        for j in "${!subvars[@]}"; do
-            vars[${context}.${j}]="${subvars[$j]}"
-        done
-        doTag "$2" "$(toString "$(declare -p vars)")"
+        doTag "$2" "$(toString "$3" "${vars[${context}.${i}]}")"
         (( i++ ))
     done
 }
