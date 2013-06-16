@@ -5,49 +5,33 @@
         <title>
             {{ title }} - {{ SITE_NAME }}
         </title>
-        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.0/pure-min.css">
-        <link rel="stylesheet" href="stylesheets/baby-blue.css"/>
+        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <link href='http://fonts.googleapis.com/css?family=Patrick+Hand+SC' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Alef' rel='stylesheet' type='text/css'>
-        <style>
-            body {
-                font-family: 'Alef', sans-serif;
-            }
-            h1, h2, h3 {
-                font-family: 'Patrick Hand SC', cursive;
-            }
-        </style>
+        <link href='stylesheets/blog.css' rel='stylesheet' type='text/css'>
     </head>
     <body>
-        <div class="header">
-            <h1>{{ SITE_NAME }}</h1>
-            <h2>{{ AUTHOR }} is writing this blog</h2>
-        </div>
-        <div class="content">
-            {{ content }}
-        </div>
+        <div class="container-narrow">
 
-        <div class="legal pure-g-r">
-            <div class="pure-u-2-5">
-                <div class="l-box">
-                    <p class="legal-license">
-                        About
-                        <hr/>
-                        This blog is written by Tai-Lin Chu with vim and bash static website generator, Baker.
-                    </p>
-                </div>
+            <div class="header">
+                <h1>{{ SITE_NAME }}</h1>
+                <h2>{{ AUTHOR }} is writing this blog</h2>
             </div>
-            <div class="pure-u-1-5">
-                <div class="l-box legal-logo">
+            <div class="content">
+                {{ content }}
+            </div>
+            <div class="footer row-fluid">
+                <div class="legal span5">
+                    About
+                    <hr/>
+                    This blog is written by Tai-Lin Chu with vim and bash static website generator, Baker.
+                </div>
+                <div class="logo span2">
                     <img alt="baker" src="images/logo.png" width="65"/>
                     <br/><b><a href="http://github.com/taylorchu/baker">Baker</a></b>
                 </div>
-            </div>
-            <div class="pure-u-1-5">
-                <div class="l-box">
-                    <pre style="border: none;">{% call cal %}
-                        {% call archive %}
-                    </pre>
+                <div class="other span5">
+                    {% call archive %}
                 </div>
             </div>
         </div>

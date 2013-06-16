@@ -1,0 +1,62 @@
+body {
+    font-family: 'Alef', sans-serif;
+}
+h1, h2, h3, h4, h5 {
+    font-family: 'Patrick Hand SC', cursive;
+}
+body {
+    padding-top: 20px;
+    padding-bottom: 40px;
+    color: #777;
+}
+.container-narrow {
+    margin: 0 auto;
+    max-width: 800px;
+}
+.other {
+    text-align: right;
+}
+.logo {
+    text-align: center;
+}
+.legal {
+    text-align: left;
+}
+.footer {
+    margin-top: 60px;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    color: rgb(75, 75, 75);
+}
+h3 {
+    font-size: 1.25em;
+}
+h4 {
+    font-size: 1.125em;
+}
+.content p {
+    line-height: 1.6em;
+    font-size: 1.125em;
+}
+.subhead {
+    margin: 50px 0 20px 0;
+    font-weight: 300;
+    color: #888;
+}
+.header {
+    color: #333;
+    padding: 1em;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+.header h1 {
+    margin: 0.2em 0;
+    font-size: 3em;
+    font-weight: 300;
+}
+.header h2 {
+    font-weight: 300;
+    margin: 0;
+    color: #ccc;
+}

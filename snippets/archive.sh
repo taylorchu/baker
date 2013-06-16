@@ -5,9 +5,7 @@ getMonth() {
 }
 
 archive() {
-	echo "<ul>"
-	for month in $(getMonth); do
-		echo "<li>$month</li>"
-	done
-	echo "</ul>"
+	echo '<div style="white-space: pre; font-family: monospace;">'
+	cal
+	echo '</div>'
 }
