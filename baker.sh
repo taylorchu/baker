@@ -12,13 +12,17 @@ prepareOutputDir() {
     cp -r "$THEME_DIR"/{"$STYLESHEET_DIR","$IMAGE_DIR","$JAVASCRIPT_DIR"} "$OUTPUT_DIR" 
 }
 
+listPosts() {
+    find "$POST_DIR" -name "*.md" | sort -r
+}
+
 createEachPost() {
     local base="([SITE_NAME]='$SITE_NAME' [AUTHOR]='$AUTHOR')"
     local src
-    for src in $(find "$POST_DIR" -name "*.md"); do
-        dest="$(basename $src $POST_EXT)$OUTPUT_EXT"
+    for src in $(listPosts); do
+        local dest="$(basename $src $POST_EXT)$OUTPUT_EXT"
         headline "$src -> $OUTPUT_DIR/$dest"
-        doLayout "$(header "$src" layout)" "$(toString "$base" "([link]=$dest)" "$(getPost "$src")")" > "$OUTPUT_DIR/$dest"
+        doLayout "$(header "$src" layout)" "$(toString "$base" "$(getPost "$src")")" > "$OUTPUT_DIR/$dest"
     done
 }
 
@@ -28,11 +32,11 @@ createIndex() {
     declare -A indexVars
     local i=0
     local src
-    for src in $(find "$POST_DIR" -name "*.md" | sort -r); do
-        indexVars[post.${i}]="$(toString "$base" "([link]=$dest)" "$(getPost "$src")")"
+    for src in $(listPosts); do
+        indexVars[post.${i}]="$(toString "$base" "$(getPost "$src")")"
         (( i++ ))
     done  
-    doLayout "index" "$(toString "$base" "$(declare -p indexVars)")" > "$OUTPUT_DIR/index$OUTPUT_EXT" 
+    doLayout index "$(toString "$base" "$(declare -p indexVars)")" > "$OUTPUT_DIR/index$OUTPUT_EXT" 
 }
 
 case "$1" in
