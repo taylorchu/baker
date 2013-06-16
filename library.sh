@@ -11,7 +11,7 @@ debug() {
 
 # convert string to hook
 slug() {
-    tr -d [:cntrl:][:punct:] <<< "$*" | tr -s [:space:] - | tr -s [:upper:] [:lower:]
+    tr -d [:cntrl:][:punct:] <<< "$*" | tr -s [:space:] - | tr [:upper:] [:lower:]
 }
 
 # $@: variable strings

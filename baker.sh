@@ -12,8 +12,7 @@ case "$1" in
         declare -A base=([SITE_NAME]="$SITE_NAME" [AUTHOR]="$AUTHOR" [title]="home")
         declare -A indexVars
         i=0
-        IFS=$'\n'
-        for src in "$(ls "$POST_DIR" | grep "\.md$" | sort -r)"; do
+        for src in $(ls "$POST_DIR" | grep "\.md$" | sort -r); do
             dest="$(basename $src $POST_EXT)$OUTPUT_EXT"
             headline "$POST_DIR/$src -> $OUTPUT_DIR/$dest"
             pageVars="$(toString "$(declare -p base)" "([link]=$dest)" "$(getPost "$POST_DIR/$src")")"
