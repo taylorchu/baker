@@ -4,7 +4,6 @@ source config.sh
 source library.sh
 source array.sh
 source layout.sh
-source posts.sh
 
 case "$1" in
     bake)
@@ -17,7 +16,7 @@ case "$1" in
             important "$POST_DIR/$src -> $OUTPUT_DIR/$dest"
             # site name link
             declare -A base=([SITE_NAME]="$SITE_NAME" [AUTHOR]="$AUTHOR" [link]="$dest")
-            pageVars="$(toString "$(declare -p base)" "$(postContent "$POST_DIR/$src")")"
+            pageVars="$(toString "$(declare -p base)" "$(./posts.sh "$POST_DIR/$src")")"
             indexVars[post.${i}]="$pageVars"
             doLayout "$(header "$POST_DIR/$src" layout)" "$pageVars" > "$OUTPUT_DIR/$dest"
             (( i++ ))
