@@ -7,8 +7,10 @@ source layout.sh
 
 case "$1" in
     bake)
-        rm -rf $OUTPUT_DIR/{$STYLESHEET_DIR,$IMAGE_DIR,*.html}
-        cp -r "$THEME_DIR/$STYLESHEET_DIR" "$OUTPUT_DIR"; cp -r "$THEME_DIR/$IMAGE_DIR" "$OUTPUT_DIR"
+        # prepare
+        rm -rf "$OUTPUT_DIR"/*
+        cp -r "$THEME_DIR"/{"$STYLESHEET_DIR","$IMAGE_DIR","$JAVASCRIPT_DIR"} "$OUTPUT_DIR"
+        # create binding
         declare -A base=([SITE_NAME]="$SITE_NAME" [AUTHOR]="$AUTHOR" [title]="home")
         declare -A indexVars
         i=0
