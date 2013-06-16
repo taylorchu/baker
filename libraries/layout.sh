@@ -11,10 +11,11 @@ body() {
     grep -q "^---$" "$1" && sed "1,/^---$/d" "$1" || cat "$1"
 }
 
-# get include tag's template name
-# $1: file
-listIncludeName() {
-    grep -o "{% include [a-z]\+ %}" <<<"$1" | sed "s/{% include \([a-z]\+\) %}/\1/g" | sort -u
+# list tag by the same name
+# $1: tag
+# $2: template string
+listTagContextByName() {
+    tagContext "$(grep -o "{% $1 [a-z]\+ %}" <<<"$2")" | sort -u
 }
 
 # get tag offset and tag
@@ -165,9 +166,16 @@ doReplacement() {
     done
 
     # {% include %}
-    for i in $(listIncludeName "$1"); do
+    for i in $(listTagContextByName include "$1"); do
         local from="{% include $i %}"
         local to="$(doInclude "$i" "$2")"
+        result="${result//$from/$to}"
+    done
+
+    # {% call %}
+    for i in $(listTagContextByName call "$1"); do
+        local from="{% call $i %}"
+        local to="$($i)"
         result="${result//$from/$to}"
     done
     echo -n "$result"
