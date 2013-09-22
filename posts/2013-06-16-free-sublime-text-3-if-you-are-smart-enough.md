@@ -1,4 +1,3 @@
----
 layout: post
 title: free sublime text 3 if you are smart enough
 date: 2013-06-16 02:39

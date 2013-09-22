@@ -1,0 +1,21 @@
+---
+<!DOCTYPE html>
+<html>
+<head>
+	{% include bootstrap %}
+	<title>{{ title }} - {{ site.name }}</title>
+</head>
+<body>
+	<div class="jumbotron">
+	  <div class="container">
+	    <h1>{{ title }}</h1>
+	    <p>{{ meta }}</p>
+	    <p><a href="index.html" class="btn btn-primary btn-lg">Continue to read posts..</a></p>
+	  </div>
+	</div>
+	<div class="container">
+		<p>{{ content }}</p>
+	</div>
+	
+</body>
+</html>
