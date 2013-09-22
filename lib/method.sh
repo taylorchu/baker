@@ -1,4 +1,13 @@
 # $1 = binding
+
+list_page() {
+	find "$PAGE_DIR" -name "*.md" | sort
+}
+
+list_post() {
+	find "$POST_DIR" -name "*.md" | sort
+}
+
 bake_pages() {
 	local page
 	while IFS=$\n read -r page; do
@@ -8,11 +17,12 @@ bake_pages() {
 		template "$(map_set \
 			title "$(header title < "$page")" \
 			meta "$(header meta < "$page")" \
-			content "$(body <"$page" | ./Markdown.pl )" <<< "$1")" \
+			content "$(body <"$page" | ./Markdown.pl )" \
+			<<< "$1")" \
 			< "$LAYOUT_DIR/$(header layout <"$page").html" \
 			> "$OUTPUT_DIR/$(md_to_url "$page")"
 		update_status "$page"
-	done < <(find "$PAGE_DIR" -name "*.md")
+	done < <(list_page)
 }
 
 baker_prepare() {
@@ -31,7 +41,7 @@ need_bake_index() {
 	local post
 	while IFS=$\n read -r post; do
 		need_bake "$post" && return 0
-	done < <(find "$POST_DIR" -name "*.md")
+	done < <(list_post)
 	return 1
 }
 
@@ -54,11 +64,12 @@ bake_posts() {
 			prev.title "$(prev_post_title "$post")" \
 			next.url "$(next_post_url "$post")" \
 			next.title "$(next_post_title "$post")" \
-			content "$(body <"$post" | ./Markdown.pl )" <<< "$1")" \
+			content "$(body <"$post" | ./Markdown.pl )" \
+			<<< "$1")" \
 			< "$LAYOUT_DIR/$(header layout <"$post").html" \
 			> "$OUTPUT_DIR/$(md_to_url "$post")"
 		update_status "$post"
-	done < <(find "$POST_DIR" -name "*.md")
+	done < <(list_post)
 }
 
 md_to_url() {
@@ -67,7 +78,7 @@ md_to_url() {
 
 # $1 = file
 next_post() {
-	find "$POST_DIR" -name "*.md" | sort -r | grep "$1$" -A 1 | grep -v "$1$"
+	list_post | tac | grep "$1$" -A 1 | grep -v "$1$"
 }
 
 next_post_title() {
@@ -81,7 +92,7 @@ next_post_url() {
 
 # $1 = file
 prev_post() {
-	find "$POST_DIR" -name "*.md" | sort -r | grep "$1$" -B 1 | grep -v "$1$"
+	list_post | tac | grep "$1$" -B 1 | grep -v "$1$"
 }
 
 prev_post_title() {
@@ -99,7 +110,8 @@ post_json() {
 		title "$(header title < "$1")" \
 		url "$(md_to_url "$1")" \
 		date "$(header date < "$1")" \
-		summary "$(body <"$1" | summary)" <<<"{}"
+		summary "$(body <"$1" | summary)" \
+		<<<"{}"
 }
 
 post_collection_json() {
@@ -110,7 +122,7 @@ post_collection_json() {
 	while IFS=$\n read -r post; do
 		posts="$(map_set "$i" "$(post_json "$post")" <<<"$posts")"
 		((i++))
-	done < <(find "$POST_DIR" -name "*.md" | sort -r)
+	done < <(list_post | tac)
 	echo "$posts"
 }
 
@@ -122,14 +134,15 @@ page_collection_json() {
 	while IFS=$\n read -r page; do
 		pages="$(map_set "$i" "$(page_json "$page")" <<<"$pages")"
 		((i++))
-	done < <(find "$PAGE_DIR" -name "*.md" | sort -r)
+	done < <(list_page | tac)
 	echo "$pages"
 }
 
 page_json() {
 	map_set \
 		title "$(header title < "$1")" \
-		url "$(md_to_url "$1")" <<<"{}"
+		url "$(md_to_url "$1")" \
+		<<<"{}"
 }
 
 bake_index() {

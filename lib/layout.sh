@@ -46,7 +46,12 @@ list_control() {
 					;;
 			esac
 		fi
-	done < <(grep -b -o '{% \(\(foreach [a-z0-9.]\+\)\|endforeach\|\(if \(! \)\?[a-z0-9.]\+\)\|endif\) %}' <<<"$in")
+	done < <(grep -b -o \
+		-e '{% foreach [a-z0-9.]\+ %}' \
+		-e '{% endforeach %}' \
+		-e '{% if \(! \)\?[a-z0-9.]\+ %}' \
+		-e '{% endif %}' \
+		<<<"$in")
 	(( $(stack_len) == 0 )) && echo "plain::${in:$plain}"
 }
 
