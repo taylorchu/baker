@@ -13,6 +13,7 @@ body() {
 # foreach: {% foreach var %} ... {% endforeach %}
 # include: {% include name%}
 # var: {{ name }}
+# non_escape_var: {{{ name }}}
 ## snippet: {% snippet name %}
 
 
