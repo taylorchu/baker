@@ -162,7 +162,7 @@ summary() {
 		(( ${#rep} + ${#p} < $len )) || break
 		rep+="$p"
 	done < <(tr -d [:cntrl:] | grep -o '<p>[^<]\+</p>')
-	echo "$rep.."
+	echo "$rep"
 }
 
 bake() {
