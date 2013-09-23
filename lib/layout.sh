@@ -12,8 +12,8 @@ body() {
 # if: {% if var %} ... {% endif %} 
 # foreach: {% foreach var %} ... {% endforeach %}
 # include: {% include name%}
-# var: {{ name }}
-# non_escape_var: {{{ name }}}
+# escape_var: {{ name }}
+# var: {{{ name }}}
 ## snippet: {% snippet name %}
 
 
