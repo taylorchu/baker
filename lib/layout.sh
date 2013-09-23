@@ -101,16 +101,39 @@ _include() {
 	echo "$rep"
 }
 
-_var() {
+html_escape() {
+    local in="$(cat)"
+    in="${in//&/&amp;}"
+    in="${in//</&lt;}"
+    in="${in//>/&gt;}"
+    in="${in//\'/&apos;}"
+    in="${in//\"/&quot;}"
+    echo "$in"
+}
+
+_escape_var() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
 	while IFS=$\n read -r name; do
 		if [[ "$name" =~ ^\{\{\ (.+)\ \}\}$ ]]; then
-			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1")"
+			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1" | html_escape)"
 			[[ "$value" ]] && rep="${rep//$name/$value}"
 		fi
 	done < <(grep -o '{{ [a-z0-9\.]\+ }}' <<<"$in")
+	echo "$rep"
+}
+
+_var() {
+	local in="$(cat)"
+	local rep="$in"
+	local name
+	while IFS=$\n read -r name; do
+		if [[ "$name" =~ ^\{\{\{\ (.+)\ \}\}\}$ ]]; then
+			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1")"
+			[[ "$value" ]] && rep="${rep//$name/$value}"
+		fi
+	done < <(grep -o '{{{ [a-z0-9\.]\+ }}}' <<<"$in")
 	echo "$rep"
 }
 
@@ -132,7 +155,7 @@ _all() {
 				;;
 		esac
 	done < <(list_control)
-	_var "$1" <<<"$rep" | _include "$1" | _snippet "$1"
+	_var "$1" <<<"$rep" | _escape_var "$1" | _include "$1" | _snippet "$1"
 }
 
 _snippet() {
