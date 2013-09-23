@@ -110,7 +110,7 @@ post_json() {
 		title "$(header title < "$1")" \
 		url "$(md_to_url "$1")" \
 		date "$(header date < "$1")" \
-		summary "$(body <"$1" | summary)" \
+		summary "$(body <"$1" | ./Markdown.pl | summary)" \
 		<<<"{}"
 }
 
@@ -154,10 +154,15 @@ bake_index() {
 }
 
 summary() {
-	local in="$(grep -v ^$)"
 	local len
 	[[ "$1" =~ ^[0-9]+$ ]] && len=$1 || len=200
-	echo "${in:0:$len}.."
+	local rep=""
+	local p
+	while IFS=$\n read -r p; do
+		(( ${#rep} + ${#p} < $len )) || break
+		rep+="$p"
+	done < <(tr -d [:cntrl:] | grep -o '<p>[^<]\+</p>')
+	echo "$rep.."
 }
 
 bake() {
