@@ -87,31 +87,27 @@ _strong() {
 
 _p() {
 	local in_tag=false
-	local tag_buf
-	local no_tag_buf
+	local tag_buf=""
+	local no_tag_buf=""
 	local newline=$'\n'
 	local line
 	while IFS=$'\n' read -r line; do
-		if ! $in_tag; then
-			no_tag_buf=""
-			tag_buf="<p>"
-			in_tag=true
-		fi
-		if [[ "$line" ]]; then
-			if [[ "$line" =~ \< ]]; then
-				echo -n "$no_tag_buf"
-				echo "$line"
-				in_tag=false
+		if [[ "$line" && ! "$line" =~ \< ]]; then
+			if $in_tag; then
+				tag_buf+="<br/>$line"
 			else
-				tag_buf+="$line<br/>"
-				no_tag_buf+="$line$newline"
+				tag_buf="<p>$line"
+				in_tag=true
 			fi
+			no_tag_buf+="$line$newline"
 		else
-			[[ "$tag_buf" != "<p>" ]] && echo "$tag_buf</p>"
+			[[ "$line" ]] && echo "$no_tag_buf$line" || echo "$tag_buf</p>"
 			in_tag=false
+			tag_buf=""
+			no_tag_buf=""
 		fi
 	done
-	$in_tag && [[ "$tag_buf" != "<p>" ]]  && echo "$tag_buf</p>"
+	$in_tag && echo "$tag_buf</p>"
 }
 
 _pre() {
