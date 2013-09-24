@@ -8,8 +8,3 @@ headline() {
 debug() {
     echo "$*" >> baker.log
 }
-
-# convert string to hook
-slug() {
-    tr -d [:cntrl:][:punct:] <<< "$*" | tr -s [:space:] - | tr [:upper:] [:lower:]
-}

@@ -85,29 +85,91 @@ _strong() {
 	echo "$rep"
 }
 
+_wrap() {
+	local in_tag=false
+	local line
+	while IFS=$'\n' read -r line; do
+		if [[ "$line" ]]; then
+			if $in_tag; then
+				echo "<br/>"
+				echo -n "$line"
+			else
+				echo -n "<p>$line"
+			 	in_tag=true
+			fi
+		else
+			if $in_tag; then
+				echo "</p>"
+				in_tag=false
+			fi
+			echo
+		fi
+	done
+	$in_tag && echo "</p>"
+}
+
 _p() {
+	local in="$(cat)"
+	local rep="$in"
+	local plain=0
+	local plaintext
+	local in_other_tag=0
+	local offset
+	local tag
+	while IFS=: read -r offset tag; do
+		if [[ "$tag" == "<hr/>" ]]; then
+			continue
+		elif [[ "$tag" =~ ^\</ ]]; then
+			# end
+			((in_other_tag--))
+
+			(( in_other_tag == 0 )) && plain=$(( $offset + ${#tag}))
+		else
+			# start
+			if (( in_other_tag == 0 )); then
+				plaintext="$(trim <<< "${in:$plain:$(($offset - $plain))}")"
+				[[ "$plaintext" ]] && rep="${rep//"$plaintext"/$(_wrap <<<"$plaintext")}"
+			fi
+			
+			((in_other_tag++))
+		fi
+	done < <(grep -b -o \
+			-e '</\?ol>'\
+			-e '</\?ul>'\
+			-e '</\?pre>' \
+			-e '</\?blockquote>' \
+			-e '</\?h[1-6]>' \
+			-e '<hr/>' \
+			<<< "$in"
+		)
+	plaintext="$(trim <<< "${in:$plain}")"
+	[[ "$plaintext" ]] && rep="${rep//"$plaintext"/$(_wrap <<<"$plaintext")}"
+	echo "$rep"
+}
+
+_blockquote() {
 	local in_tag=false
 	local tag_buf=""
-	local no_tag_buf=""
 	local newline=$'\n'
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" && ! "$line" =~ \< ]]; then
-			if $in_tag; then
-				tag_buf+="<br/>$line"
-			else
-				tag_buf="<p>$line"
-				in_tag=true
+		if [[ "$line" =~ ^\&gt\;\ (.*) ]]; then
+			if ! $in_tag; then
+			 	echo -n "<blockquote>"
+			 	in_tag=true
 			fi
-			no_tag_buf+="$line$newline"
+			tag_buf+="${BASH_REMATCH[1]}$newline"
 		else
-			[[ "$line" ]] && echo "$no_tag_buf$line" || echo "$tag_buf</p>"
-			in_tag=false
-			tag_buf=""
-			no_tag_buf=""
+			if $in_tag; then
+				_markdown <<< "$tag_buf"
+				echo "</blockquote>"
+				in_tag=false
+				tag_buf=""
+			fi
+			echo "$line"
 		fi
 	done
-	$in_tag && echo "$tag_buf</p>"
+	$in_tag && _markdown <<< "$tag_buf" && echo "</blockquote>"
 }
 
 _pre() {
@@ -156,7 +218,7 @@ _ul() {
 	local in_tag=false
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^[-+]\ (.*)$ ]]; then
+		if [[ "$line" =~ ^[-+*]\ (.*)$ ]]; then
 			if ! $in_tag; then
 			 	echo "<ul>"
 			 	in_tag=true
@@ -173,6 +235,10 @@ _ul() {
 	$in_tag && echo "</ul>"
 }
 
+_markdown() {
+	_ul | _ol | _blockquote | _pre | _strong | _em | _img | _a | _code | _hr | _h | _p
+}
+
 markdown() {
-	html_escape | _ul | _ol | _pre | _strong | _em | _img | _a | _code | _hr | _h | _p
+	html_escape | _markdown
 }
