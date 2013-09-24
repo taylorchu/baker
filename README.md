@@ -16,7 +16,7 @@ i.e. {% snippet cal %} gives a simple calendar
 1. `dry` and simple.
 2. all html escapes by default. use `{{{   }}}` to skip html escaping
 
-``f
+```f
 # if: {% if var %} ... {% endif %} 
 # foreach: {% foreach var %} ... {% endforeach %}
 # include: {% include name%}
@@ -24,7 +24,7 @@ i.e. {% snippet cal %} gives a simple calendar
 # var: {{{ name }}}
 ## snippet: {% snippet name %}
 
-``
+```
 
 ## markdown (bash)
 
