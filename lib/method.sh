@@ -10,14 +10,14 @@ list_post() {
 
 bake_pages() {
 	local page
-	while IFS=$\n read -r page; do
+	while IFS=$'\n' read -r page; do
 		need_bake "$page" || continue
 
 		echo "$page"
 		template "$(map_set \
 			title "$(header title < "$page")" \
 			meta "$(header meta < "$page")" \
-			content "$(body <"$page" | ./Markdown.pl )" \
+			content "$(body <"$page" | markdown )" \
 			<<< "$1")" \
 			< "$LAYOUT_DIR/$(header layout <"$page").html" \
 			> "$OUTPUT_DIR/$(md_to_url "$page")"
@@ -39,7 +39,7 @@ need_bake() {
 
 need_bake_index() {
 	local post
-	while IFS=$\n read -r post; do
+	while IFS=$'\n' read -r post; do
 		need_bake "$post" && return 0
 	done < <(list_post)
 	return 1
@@ -53,7 +53,7 @@ update_status() {
 
 bake_posts() {
 	local post
-	while IFS=$\n read -r post; do
+	while IFS=$'\n' read -r post; do
 		need_bake "$post" || continue
 
 		echo "$post"
@@ -64,7 +64,7 @@ bake_posts() {
 			prev.title "$(prev_post_title "$post")" \
 			next.url "$(next_post_url "$post")" \
 			next.title "$(next_post_title "$post")" \
-			content "$(body <"$post" | ./Markdown.pl )" \
+			content "$(body <"$post" | markdown )" \
 			<<< "$1")" \
 			< "$LAYOUT_DIR/$(header layout <"$post").html" \
 			> "$OUTPUT_DIR/$(md_to_url "$post")"
@@ -110,7 +110,7 @@ post_json() {
 		title "$(header title < "$1")" \
 		url "$(md_to_url "$1")" \
 		date "$(header date < "$1")" \
-		summary "$(body <"$1" | ./Markdown.pl | summary)" \
+		summary "$(body <"$1" | summary)" \
 		<<<"{}"
 }
 
@@ -119,7 +119,7 @@ post_collection_json() {
 	local posts="{}"
 	local i=0
 	local post
-	while IFS=$\n read -r post; do
+	while IFS=$'\n' read -r post; do
 		posts="$(map_set "$i" "$(post_json "$post")" <<<"$posts")"
 		((i++))
 	done < <(list_post | tac)
@@ -131,7 +131,7 @@ page_collection_json() {
 	local pages="{}"
 	local i=0
 	local page
-	while IFS=$\n read -r page; do
+	while IFS=$'\n' read -r page; do
 		pages="$(map_set "$i" "$(page_json "$page")" <<<"$pages")"
 		((i++))
 	done < <(list_page | tac)
@@ -155,14 +155,15 @@ bake_index() {
 
 summary() {
 	local len
-	[[ "$1" =~ ^[0-9]+$ ]] && len=$1 || len=200
+	[[ "$1" =~ ^[0-9]+$ ]] && len=$1 || len=100
 	local rep=""
-	local p
-	while IFS=$\n read -r p; do
-		(( ${#rep} + ${#p} < $len )) || break
-		rep+="$p"
-	done < <(tr -d [:cntrl:] | grep -o '<p>[^<]\+</p>')
-	echo "$rep"
+	local newline=$'\n'
+	local line
+	while IFS=$'\n' read -r line; do
+		rep+="$line$newline"
+		(( ${#rep} < $len )) || break
+	done
+	markdown <<< "$rep"
 }
 
 bake() {

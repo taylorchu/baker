@@ -77,11 +77,11 @@ _foreach() {
 	local map="$(map_get "$var" <<<"$1")"
 	is_map "$map" || return
 	local key
-	while IFS=$\n read -r key; do
+	while IFS=$'\n' read -r key; do
 		local sub_map=$(map_get "$key" <<<"$map")
 		local binding="$1"
 		local binding_key
-		while IFS=$\n read -r binding_key; do
+		while IFS=$'\n' read -r binding_key; do
 			binding="$(map_set "$binding_key" "$(map_get "$binding_key" <<<"$sub_map")" \
 				<<<"$binding")"
 		done < <(map_keys <<<"$sub_map")
@@ -93,33 +93,23 @@ _include() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$\n read -r name; do
+	while IFS=$'\n' read -r name; do
 		if [[ "$name" =~ ^\{%\ include\ (.+)\ %\}$ ]]; then
 			local value="$(template "$1" < "$INCLUDE_DIR/${BASH_REMATCH[1]}.html")" 
-			rep="${rep//$name/$value}"
+			rep="${rep//"$name"/$value}"
 		fi
 	done < <(grep -o '{% include [a-z0-9\.]\+ %}' <<<"$in")
 	echo "$rep"
-}
-
-html_escape() {
-    local in="$(cat)"
-    in="${in//&/&amp;}"
-    in="${in//</&lt;}"
-    in="${in//>/&gt;}"
-    in="${in//\'/&apos;}"
-    in="${in//\"/&quot;}"
-    echo "$in"
 }
 
 _escape_var() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$\n read -r name; do
+	while IFS=$'\n' read -r name; do
 		if [[ "$name" =~ ^\{\{\ (.+)\ \}\}$ ]]; then
 			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1" | html_escape)"
-			[[ "$value" ]] && rep="${rep//$name/$value}"
+			[[ "$value" ]] && rep="${rep//"$name"/$value}"
 		fi
 	done < <(grep -o '{{ [a-z0-9\.]\+ }}' <<<"$in")
 	echo "$rep"
@@ -129,10 +119,10 @@ _var() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$\n read -r name; do
+	while IFS=$'\n' read -r name; do
 		if [[ "$name" =~ ^\{\{\{\ (.+)\ \}\}\}$ ]]; then
 			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1")"
-			[[ "$value" ]] && rep="${rep//$name/$value}"
+			[[ "$value" ]] && rep="${rep//"$name"/$value}"
 		fi
 	done < <(grep -o '{{{ [a-z0-9\.]\+ }}}' <<<"$in")
 	echo "$rep"
@@ -163,10 +153,10 @@ _snippet() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$\n read -r name; do
+	while IFS=$'\n' read -r name; do
 		if [[ "$name" =~ ^\{%\ snippet\ (.+)\ %\}$ ]]; then
 			local value="$(${BASH_REMATCH[1]})"
-			rep="${rep//$name/$value}"
+			rep="${rep//"$name"/$value}"
 		fi
 	done < <(grep -o '{% snippet [a-z0-9\.]\+ %}' <<<"$in")
 	echo "$rep"
