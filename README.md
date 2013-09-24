@@ -1,4 +1,5 @@
 # baker, the real static blog generator in bash
+![baker](http://i.imgur.com/Tngl5Vv.png)
 
 very concise and simple.
 
