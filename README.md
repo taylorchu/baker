@@ -1,4 +1,4 @@
-# baker, the real static blog generator
+# baker, the real static blog generator in bash
 
 very concise and simple.
 
@@ -10,13 +10,23 @@ i.e. {% snippet cal %} gives a simple calendar
 3. experiment with your mac/linux
 4. only re-bake if required
 
+## usage
+
+```
+baker.sh
+    post [title]        create new post
+    page [title]        create new post
+    bake [--force]      ship static page
+
+```
+
 
 ## template (bash)
 
 1. `dry` and simple.
 2. all html escapes by default. use `{{{   }}}` to skip html escaping
 
-```f
+```
 # if: {% if var %} ... {% endif %} 
 # foreach: {% foreach var %} ... {% endforeach %}
 # include: {% include name%}
@@ -38,6 +48,9 @@ please:
 2. share useful snippet
 3. improve bake chain
 4. refactor, refactor
+
+## note
+snippets are dangerous.
 
 ## author
 1. taylorchu
