@@ -1,7 +1,7 @@
 _h() {
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^(#{1,6})(.*)$ ]]; then
+		if [[ "$line" =~ ^(#{1,6})(.+)$ ]]; then
 			echo "<h${#BASH_REMATCH[1]}>${BASH_REMATCH[2]}</h${#BASH_REMATCH[1]}>"
 		else
 			echo "$line"
@@ -25,7 +25,7 @@ _code() {
 	local rep="$in"
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^\`(.*)\`$ ]]; then
+		if [[ "$line" =~ ^\`(.+)\`$ ]]; then
 			local value="<code>${BASH_REMATCH[1]}</code>"
 			rep="${rep//"$line"/$value}"
 		fi
@@ -38,7 +38,7 @@ _img() {
 	local rep="$in"
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^\!\[(.*)\]\((.*)\)$ ]]; then
+		if [[ "$line" =~ ^\!\[(.+)\]\((.+)\)$ ]]; then
 			local value="<img src=\"${BASH_REMATCH[2]}\" alt=\"${BASH_REMATCH[1]}\"/>"
 			rep="${rep//"$line"/$value}"
 		fi
@@ -51,7 +51,7 @@ _a() {
 	local rep="$in"
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^\[(.*)\]\((.*)\)$ ]]; then
+		if [[ "$line" =~ ^\[(.+)\]\((.+)\)$ ]]; then
 			local value="<a href=\"${BASH_REMATCH[2]}\">${BASH_REMATCH[1]}</a>"
 			rep="${rep//"$line"/$value}"
 		fi
@@ -64,7 +64,7 @@ _em() {
 	local rep="$in"
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^[*_](.*)[*_]$ ]]; then
+		if [[ "$line" =~ ^[*_](.+)[*_]$ ]]; then
 			local value="<em>${BASH_REMATCH[1]}</em>"
 			rep="${rep//"$line"/$value}"
 		fi
@@ -77,7 +77,7 @@ _strong() {
 	local rep="$in"
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^[*_]{2}(.*)[*_]{2}$ ]]; then
+		if [[ "$line" =~ ^[*_]{2}(.+)[*_]{2}$ ]]; then
 			local value="<strong>${BASH_REMATCH[1]}</strong>"
 			rep="${rep//"$line"/$value}"
 		fi

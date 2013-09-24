@@ -60,7 +60,7 @@ _if() {
 	local var
 	local section
 	IFS=: read -r var section
-	if [[ "$var" =~ (\\!)?\ ?(.*) ]]; then
+	if [[ "$var" =~ (\\!)?\ ?(.+) ]]; then
 		#echo ${BASH_REMATCH[@]}
 		local value="$(map_get "${BASH_REMATCH[2]}" <<<"$1")"
 		[[ ! "$value" ]] && return
