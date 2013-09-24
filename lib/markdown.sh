@@ -94,7 +94,7 @@ _p() {
 	while IFS=$'\n' read -r line; do
 		if ! $in_tag; then
 			no_tag_buf=""
-			tag_buf="<p>$newline"
+			tag_buf="<p>"
 			in_tag=true
 		fi
 		if [[ "$line" ]]; then
@@ -103,33 +103,34 @@ _p() {
 				echo "$line"
 				in_tag=false
 			else
-				tag_buf+="$line<br/>$newline"
+				tag_buf+="$line<br/>"
 				no_tag_buf+="$line$newline"
 			fi
 		else
-			echo "$tag_buf</p>"
+			[[ "$tag_buf" != "<p>" ]] && echo "$tag_buf</p>"
 			in_tag=false
 		fi
 	done
-	$in_tag && echo "$tag_buf</p>"
+	$in_tag && [[ "$tag_buf" != "<p>" ]]  && echo "$tag_buf</p>"
 }
 
 _pre() {
 	local in_tag=false
 	local line
 	while IFS=$'\n' read -r line; do
-		if [[ "$line" =~ ^(\ {4}|\	) ]]; then
+		if [[ "$line" =~ ^(\ {4}|\	)(.*) ]]; then
 			if ! $in_tag; then
-			 	echo "<pre><code>"
+			 	echo -n "<pre><code>"
 			 	in_tag=true
 			fi
+			echo "${BASH_REMATCH[2]}"
 		else
 			if $in_tag; then
 				echo "</code></pre>"
 				in_tag=false
 			fi
+			echo "$line"
 		fi
-		echo "$line"
 	done
 	$in_tag && echo "</code></pre>"
 }
