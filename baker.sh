@@ -6,6 +6,9 @@ while IFS=$'\n' read -r sh; do
     source "$sh"
 done < <(find "$LIBRARY_DIR" "$SNIPPET_DIR" -name "*.sh")
 
+# check required
+require jshon
+
 case "$1" in
     bake)
         case "$2" in
