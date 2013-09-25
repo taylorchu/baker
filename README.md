@@ -20,7 +20,10 @@ baker.sh
     bake [--force]      ship static page
 
 ```
-
+1. ./baker.sh post I like the baker's bread
+2. baker will turn that into a markdown file in posts/, so you can use your editor. vim it.
+3. ./baker bake
+4. profit!
 
 ## template (bash)
 
