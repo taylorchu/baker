@@ -39,7 +39,7 @@ baker.sh
 
 ## markdown (bash)
 
-beautify implementation in bash, and maintainable
+beautiful and maintainable implementation in bash
 
 
 ## contribute
@@ -53,6 +53,6 @@ please:
 ## note
 snippets are dangerous.
 
-## author
-1. taylorchu
+## license & author
+taylorchu, gpl2 licensed
 
