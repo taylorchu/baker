@@ -16,10 +16,9 @@ body() {
 # var: {{{ name }}}
 ## snippet: {% snippet name %}
 
-
 # only top level
 list_control() {
-	local in="$(tr -d [:cntrl:])"
+	local in="$(newline_escape)"
 	local plain=0
 	stack_new
 	local this_offset
@@ -146,7 +145,7 @@ _all() {
 				;;
 		esac
 	done < <(list_control)
-	_var "$1" <<<"$rep" | _escape_var "$1" | _include "$1" | _snippet "$1"
+	_var "$1" <<<"$rep" | _escape_var "$1" | _include "$1" | _snippet "$1" | newline_unescape
 }
 
 _snippet() {

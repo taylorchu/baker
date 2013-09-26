@@ -17,3 +17,15 @@ html_escape() {
     in="${in//\"/&quot;}"
     echo "$in"
 }
+
+newline_escape() {
+	local line
+	while IFS=$'\n' read -r line; do
+		echo -n "$line\n"
+	done
+}
+
+newline_unescape() {
+	local in="$(cat)"
+	echo -e "$in"
+}
