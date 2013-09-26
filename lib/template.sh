@@ -74,7 +74,7 @@ _foreach() {
 	local section
 	IFS=: read -r var section
 	local map="$(map_get "$var" <<<"$1")"
-	is_map "$map" || return
+	is_map <<<"$map" || return
 	local key
 	while IFS=$'\n' read -r key; do
 		local sub_map=$(map_get "$key" <<<"$map")

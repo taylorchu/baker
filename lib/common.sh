@@ -9,11 +9,15 @@ debug() {
     echo "$*" >> baker.log
 }
 
-require() {
-    type "$1" >/dev/null 2>&1 && return
-    tput setaf 1
+error() {
+	tput setaf 1
     echo -n " :: "
     tput sgr0
-    echo "baker requires $1"
+    echo "$*"
     exit 1
+}
+
+require() {
+    type "$1" >/dev/null 2>&1 && return
+    error "baker requires $1"
 }

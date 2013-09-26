@@ -169,6 +169,8 @@ summary() {
 bake() {
 	baker_prepare
 	local binding="$(< "$BINDING")"
+	is_map <<<"$binding" || error "invalid format: $BINDING"
+
 	headline buiding index
 	bake_index "$binding" | timer
 

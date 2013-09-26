@@ -31,5 +31,5 @@ map_len() {
 }
 
 is_map() {
-	[[ "$(jshon -Q -t <<<"$1")" == object ]] && return 0 || return 1
+	[[ "$(jshon -Q -t)" == object ]] && return 0 || return 1
 }
