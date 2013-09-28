@@ -5,8 +5,11 @@ headline() {
     echo "$*"
 }
 
+rm -f "$DEBUG"
 debug() {
-    echo "$*" >> baker.log
+    echo "--- $(date +"%Y-%m-%d %H:%M")" >> "$DEBUG"
+    echo "$*" >> "$DEBUG"
+    echo >> "$DEBUG"
 }
 
 error() {
@@ -15,9 +18,4 @@ error() {
     tput sgr0
     echo "$*"
     exit 1
-}
-
-require() {
-    type "$1" >/dev/null 2>&1 && return
-    error "baker requires $1"
 }

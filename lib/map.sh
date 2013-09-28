@@ -1,35 +1,47 @@
+append() {
+	cat
+	while [[ "$1" ]]; do
+		echo "$1"
+		shift
+	done
+}
+
 # $1 = key
 # $2 = value
-# $3 = map
 map_set() {
-	local args=()
-	while [[ "$1" ]]; do
-		args+=(-s "$2" -i "$1")
-		shift 2
-	done
-	jshon "${args[@]}"
+	if [[ ! "$1" ]]; then
+		cat
+		return
+	fi
+	local escape="$(newline_escape <<<"$2")"
+	map_delete "$1" | append "$1: ${escape%%??}" | map_set "${@:3}"
 }
 
 # $1 = key
-# $2 = map
 map_get() {
-	jshon -Q -e "$1" -u
+	grep "^$1: " | cut -d ' ' -f 2- | newline_unescape
 }
 
 # $1 = key
-# $2 = map
 map_delete() {
-	jshon -d "$1"
+	grep -v "^$1: "
 }
 
 map_keys() {
-	jshon -k
+	local line
+	while IFS=$'\n' read -r line; do
+		[[ "$line" =~ ^([^\ ]+):\  ]] && echo "${BASH_REMATCH[1]}"
+	done
 }
 
 map_len() {
-	jshon -l
+	wc -l
 }
 
 is_map() {
-	[[ "$(jshon -Q -t)" == object ]] && return 0 || return 1
+	local line
+	while IFS=$'\n' read -r line; do
+		[[ "$line" =~ ^[^\ ]+:\  ]] || return 1
+	done
+	return 0
 }

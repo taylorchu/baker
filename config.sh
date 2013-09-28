@@ -6,8 +6,11 @@ readonly LAYOUT_DIR=layouts
 readonly INCLUDE_DIR=includes
 readonly PAGE_DIR=pages
 
+# debug
+readonly DEBUG=debug
+
 # binding
-readonly BINDING=vars.json
+readonly BINDING=vars
 
 # extension
 readonly SNIPPET_DIR=snippets

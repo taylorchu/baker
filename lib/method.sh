@@ -105,51 +105,57 @@ prev_post_url() {
 }
 
 # $1 = file
-post_json() {
-	map_set \
+post_binding() {
+	: | map_set \
 		title "$(header title < "$1")" \
 		url "$(md_to_url "$1")" \
 		date "$(header date < "$1")" \
-		summary "$(body <"$1" | summary)" \
-		<<<"{}"
+		summary "$(body <"$1" | summary)"
 }
 
-post_collection_json() {
+post_collection_binding() {
 	#posts
-	local posts="{}"
+	local posts=""
 	local i=0
 	local post
 	while IFS=$'\n' read -r post; do
-		posts="$(map_set "$i" "$(post_json "$post")" <<<"$posts")"
+		if (( i == 0 )); then
+			posts="$(: | map_set "$i" "$(post_binding "$post")")"
+		else
+			posts="$(map_set "$i" "$(post_binding "$post")" <<<"$posts")"
+		fi
 		((i++))
 	done < <(list_post | tac)
 	echo "$posts"
 }
 
-page_collection_json() {
+page_collection_binding() {
 	#pages
-	local pages="{}"
+	local pages=""
 	local i=0
 	local page
 	while IFS=$'\n' read -r page; do
-		pages="$(map_set "$i" "$(page_json "$page")" <<<"$pages")"
+		if (( i == 0 )); then
+			pages="$(: | map_set "$i" "$(page_binding "$page")")"
+		else
+			pages="$(map_set "$i" "$(page_binding "$page")" <<<"$pages")"
+		fi
 		((i++))
 	done < <(list_page | tac)
 	echo "$pages"
 }
 
-page_json() {
-	map_set \
+page_binding() {
+	: | map_set \
 		title "$(header title < "$1")" \
-		url "$(md_to_url "$1")" \
-		<<<"{}"
+		url "$(md_to_url "$1")"
 }
 
 bake_index() {
 	need_bake_index || return
 
 	echo index	
-	template "$(map_set posts "$(post_collection_json)" pages "$(page_collection_json)" <<<"$1")" \
+	template "$(map_set posts "$(post_collection_binding)" pages "$(page_collection_binding)" <<<"$1")" \
 		< "$LAYOUT_DIR/index.html" > "$OUTPUT_DIR/index.html"
 }
 
@@ -179,4 +185,6 @@ bake() {
 
 	headline buiding pages
 	bake_pages "$binding" | timer
+
+	[[ -f "$DEBUG" ]] && error "see '$DEBUG'"
 }

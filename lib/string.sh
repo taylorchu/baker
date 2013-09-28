@@ -1,6 +1,5 @@
 trim() {
-	local in="$(cat)"
-	[[ "$in" =~ ^[:cntrl:]*(.*)[:cntrl:]*$ ]] && echo "${BASH_REMATCH[1]}"
+	[[ "$(cat)" =~ ^[:cntrl:]*(.*)[:cntrl:]*$ ]] && echo "${BASH_REMATCH[1]}"
 }
 
 # convert string to hook
@@ -9,23 +8,21 @@ slug() {
 }
 
 html_escape() {
-    local in="$(cat)"
-    in="${in//&/&amp;}"
-    in="${in//</&lt;}"
-    in="${in//>/&gt;}"
-    in="${in//\'/&apos;}"
-    in="${in//\"/&quot;}"
-    echo "$in"
+	sed \
+	-e 's|&|\&amp|g' \
+	-e 's|<|\&lt;|g' \
+	-e 's|>|\&gt;|g' \
+	-e 's|'\''|\&apos;|g' \
+	-e 's|"|\&quot;|g'
 }
 
 newline_escape() {
 	local line
 	while IFS=$'\n' read -r line; do
-		echo -n "$line\n"
+		echo -n "${line//\\/\\\\}\n"
 	done
 }
 
 newline_unescape() {
-	local in="$(cat)"
-	echo -e "$in"
+	echo -e "$(cat)"
 }

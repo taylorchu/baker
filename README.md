@@ -7,7 +7,7 @@ very concise and simple.
 1. easily hook any other command's stdout and put it into your blog.  
 i.e. {% snippet cal %} gives a simple calendar
 
-2. less dependency: except `jshon`, all are covered by coreutil
+2. less dependency: all are covered by coreutil
 3. experiment with your mac/linux
 4. only re-bake if required
 
