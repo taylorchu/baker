@@ -1,6 +1,6 @@
 _h() {
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^(#{1,6})(.+)$ ]]; then
 			echo "<h${#BASH_REMATCH[1]}>${BASH_REMATCH[2]}</h${#BASH_REMATCH[1]}>"
 		else
@@ -11,7 +11,7 @@ _h() {
 
 _hr() {
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^-{3,}$ ]]; then
 			echo "<hr/>"
 		else
@@ -24,7 +24,7 @@ _code() {
 	local in="$(cat)"
 	local rep="$in"
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^\`(.+)\`$ ]]; then
 			local value="<code>${BASH_REMATCH[1]}</code>"
 			rep="${rep//"$line"/$value}"
@@ -37,7 +37,7 @@ _img() {
 	local in="$(cat)"
 	local rep="$in"
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^\!\[(.+)\]\((.+)\)$ ]]; then
 			local value="<img src=\"${BASH_REMATCH[2]}\" alt=\"${BASH_REMATCH[1]}\"/>"
 			rep="${rep//"$line"/$value}"
@@ -50,7 +50,7 @@ _a() {
 	local in="$(cat)"
 	local rep="$in"
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^\[(.+)\]\((.+)\)$ ]]; then
 			local value="<a href=\"${BASH_REMATCH[2]}\">${BASH_REMATCH[1]}</a>"
 			rep="${rep//"$line"/$value}"
@@ -63,7 +63,7 @@ _em() {
 	local in="$(cat)"
 	local rep="$in"
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^[*_](.+)[*_]$ ]]; then
 			local value="<em>${BASH_REMATCH[1]}</em>"
 			rep="${rep//"$line"/$value}"
@@ -76,7 +76,7 @@ _strong() {
 	local in="$(cat)"
 	local rep="$in"
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^[*_]{2}(.+)[*_]{2}$ ]]; then
 			local value="<strong>${BASH_REMATCH[1]}</strong>"
 			rep="${rep//"$line"/$value}"
@@ -88,7 +88,7 @@ _strong() {
 _wrap() {
 	local in_tag=false
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" ]]; then
 			if $in_tag; then
 				echo "<br/>"
@@ -152,7 +152,7 @@ _blockquote() {
 	local tag_buf=""
 	local newline=$'\n'
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^\&gt\;\ (.*) ]]; then
 			if ! $in_tag; then
 			 	echo -n "<blockquote>"
@@ -175,7 +175,7 @@ _blockquote() {
 _pre() {
 	local in_tag=false
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^(\ {4}|\	)(.*) ]]; then
 			if ! $in_tag; then
 			 	echo -n "<pre><code>"
@@ -196,7 +196,7 @@ _pre() {
 _ol() {
 	local in_tag=false
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^[0-9]+\.\ (.*)$ ]]; then
 			if ! $in_tag; then
 			 	echo "<ol>"
@@ -217,7 +217,7 @@ _ol() {
 _ul() {
 	local in_tag=false
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		if [[ "$line" =~ ^[-+*]\ (.*)$ ]]; then
 			if ! $in_tag; then
 			 	echo "<ul>"

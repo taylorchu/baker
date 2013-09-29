@@ -10,7 +10,7 @@ list_post() {
 
 bake_pages() {
 	local page
-	while IFS=$'\n' read -r page; do
+	while IFS= read -r page; do
 		need_bake "$page" || continue
 
 		echo "$page"
@@ -39,7 +39,7 @@ need_bake() {
 
 need_bake_index() {
 	local post
-	while IFS=$'\n' read -r post; do
+	while IFS= read -r post; do
 		need_bake "$post" && return 0
 	done < <(list_post)
 	return 1
@@ -53,7 +53,7 @@ update_status() {
 
 bake_posts() {
 	local post
-	while IFS=$'\n' read -r post; do
+	while IFS= read -r post; do
 		need_bake "$post" || continue
 
 		echo "$post"
@@ -118,7 +118,7 @@ post_collection_binding() {
 	local posts=""
 	local i=0
 	local post
-	while IFS=$'\n' read -r post; do
+	while IFS= read -r post; do
 		if (( i == 0 )); then
 			posts="$(: | map_set "$i" "$(post_binding "$post")")"
 		else
@@ -134,7 +134,7 @@ page_collection_binding() {
 	local pages=""
 	local i=0
 	local page
-	while IFS=$'\n' read -r page; do
+	while IFS= read -r page; do
 		if (( i == 0 )); then
 			pages="$(: | map_set "$i" "$(page_binding "$page")")"
 		else
@@ -165,7 +165,7 @@ summary() {
 	local rep=""
 	local newline=$'\n'
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		rep+="$line$newline"
 		(( ${#rep} < $len )) || break
 	done
@@ -178,13 +178,13 @@ bake() {
 	is_map <<<"$binding" || error "invalid format: $BINDING"
 
 	headline buiding index
-	bake_index "$binding" | timer
+	timer bake_index "$binding"
 
 	headline buiding posts
-	bake_posts "$binding" | timer
+	timer bake_posts "$binding"
 
 	headline buiding pages
-	bake_pages "$binding" | timer
+	timer bake_pages "$binding"
 
 	[[ -f "$DEBUG" ]] && error "see '$DEBUG'"
 }

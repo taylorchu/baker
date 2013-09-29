@@ -29,7 +29,7 @@ map_delete() {
 
 map_keys() {
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		[[ "$line" =~ ^([^\ ]+):\  ]] && echo "${BASH_REMATCH[1]}"
 	done
 }
@@ -40,7 +40,7 @@ map_len() {
 
 is_map() {
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		[[ "$line" =~ ^[^\ ]+:\  ]] || return 1
 	done
 	return 0

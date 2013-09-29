@@ -2,7 +2,7 @@
 source config.sh
 
 # include
-while IFS=$'\n' read -r sh; do
+while IFS= read -r sh; do
     source "$sh"
 done < <(find "$LIBRARY_DIR" "$SNIPPET_DIR" -name "*.sh")
 

@@ -76,11 +76,11 @@ _foreach() {
 	local map="$(map_get "$var" <<<"$1")"
 	is_map <<<"$map" || return
 	local key
-	while IFS=$'\n' read -r key; do
+	while IFS= read -r key; do
 		local sub_map=$(map_get "$key" <<<"$map")
 		local binding="$1"
 		local binding_key
-		while IFS=$'\n' read -r binding_key; do
+		while IFS= read -r binding_key; do
 			binding="$(map_set "$binding_key" "$(map_get "$binding_key" <<<"$sub_map")" \
 				<<<"$binding")"
 		done < <(map_keys <<<"$sub_map")
@@ -92,7 +92,7 @@ _include() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$'\n' read -r name; do
+	while IFS= read -r name; do
 		if [[ "$name" =~ ^\{%\ include\ (.+)\ %\}$ ]]; then
 			local value="$(template "$1" < "$INCLUDE_DIR/${BASH_REMATCH[1]}.html")" 
 			rep="${rep//"$name"/$value}"
@@ -105,7 +105,7 @@ _escape_var() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$'\n' read -r name; do
+	while IFS= read -r name; do
 		if [[ "$name" =~ ^\{\{\ (.+)\ \}\}$ ]]; then
 			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1" | html_escape)"
 			[[ "$value" ]] && rep="${rep//"$name"/$value}"
@@ -118,7 +118,7 @@ _var() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$'\n' read -r name; do
+	while IFS= read -r name; do
 		if [[ "$name" =~ ^\{\{\{\ (.+)\ \}\}\}$ ]]; then
 			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1")"
 			[[ "$value" ]] && rep="${rep//"$name"/$value}"
@@ -152,7 +152,7 @@ _snippet() {
 	local in="$(cat)"
 	local rep="$in"
 	local name
-	while IFS=$'\n' read -r name; do
+	while IFS= read -r name; do
 		if [[ "$name" =~ ^\{%\ snippet\ (.+)\ %\}$ ]]; then
 			local value="$(${BASH_REMATCH[1]})"
 			rep="${rep//"$name"/$value}"

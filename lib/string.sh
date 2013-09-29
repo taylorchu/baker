@@ -18,7 +18,7 @@ html_escape() {
 
 newline_escape() {
 	local line
-	while IFS=$'\n' read -r line; do
+	while IFS= read -r line; do
 		echo -n "${line//\\/\\\\}\n"
 	done
 }
