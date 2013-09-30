@@ -156,9 +156,16 @@ page_binding() {
 bake_index() {
 	need_bake_index || return
 
+	local post_collection="$(post_collection_binding)"
+	local page_collection="$(page_collection_binding)"
+
 	echo index	
-	template "$(map_set posts "$(post_collection_binding)" pages "$(page_collection_binding)" <<<"$1")" \
+	template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
 		< "$LAYOUT_DIR/index.html" > "$OUTPUT_DIR/index.html"
+
+	echo rss
+	template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
+		< "$LAYOUT_DIR/rss.html" > "$OUTPUT_DIR/rss.xml"
 }
 
 summary() {

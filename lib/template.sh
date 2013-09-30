@@ -97,7 +97,7 @@ _include() {
 			local value="$(template "$1" < "$INCLUDE_DIR/${BASH_REMATCH[1]}.html")" 
 			rep="${rep//"$name"/$value}"
 		fi
-	done < <(grep -o '{% include [a-z0-9\.]\+ %}' <<<"$in")
+	done < <(grep -o '{% include [a-z0-9.]\+ %}' <<<"$in")
 	echo "$rep"
 }
 
@@ -110,7 +110,7 @@ _escape_var() {
 			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1" | html_escape)"
 			[[ "$value" ]] && rep="${rep//"$name"/$value}"
 		fi
-	done < <(grep -o '{{ [a-z0-9\.]\+ }}' <<<"$in")
+	done < <(grep -o '{{ [a-z0-9.]\+ }}' <<<"$in")
 	echo "$rep"
 }
 
@@ -123,7 +123,7 @@ _var() {
 			local value="$(map_get "${BASH_REMATCH[1]}" <<<"$1")"
 			[[ "$value" ]] && rep="${rep//"$name"/$value}"
 		fi
-	done < <(grep -o '{{{ [a-z0-9\.]\+ }}}' <<<"$in")
+	done < <(grep -o '{{{ [a-z0-9.]\+ }}}' <<<"$in")
 	echo "$rep"
 }
 
@@ -154,10 +154,10 @@ _snippet() {
 	local name
 	while IFS= read -r name; do
 		if [[ "$name" =~ ^\{%\ snippet\ (.+)\ %\}$ ]]; then
-			local value="$(${BASH_REMATCH[1]})"
+			local value="$(eval "${BASH_REMATCH[1]}")"
 			rep="${rep//"$name"/$value}"
 		fi
-	done < <(grep -o '{% snippet [a-z0-9\.]\+ %}' <<<"$in")
+	done < <(grep -o '{% snippet [^}]\+ %}' <<<"$in")
 	echo "$rep"
 }
 

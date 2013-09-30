@@ -1,0 +1,21 @@
+---
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+	<channel>
+		<title>{{ site.name }}</title>
+		<description>{{ site.sub }}</description>
+		<link>http://{{ site.url }}/index.html</link>
+		<lastBuildDate>{% snippet date +"%Y-%m-%d %H:%M" %}</lastBuildDate>
+
+		{% foreach posts %}
+			<item>
+				<title>{{ title }}</title>
+				<description>{{ summary }}</description>
+				<link>http://{{ site.url }}/{{ url }}</link>
+				<guid>http://{{ site.url }}/{{ url }}</guid>
+				<pubDate>{{ date }}</pubDate>
+			</item>
+		{% endforeach %}
+
+	</channel>
+</rss>
