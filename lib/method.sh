@@ -108,10 +108,12 @@ prev_post_url() {
 
 # $1 = file
 post_binding() {
+	local date="$(header date < "$1")"
 	: | map_set \
 		title "$(header title < "$1")" \
 		url "$(md_to_url "$1")" \
-		date "$(header date < "$1")" \
+		date "$date" \
+		rss.date "$(date -R -d "$date")" \
 		summary "$(body <"$1" | summary)"
 }
 
