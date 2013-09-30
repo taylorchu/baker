@@ -42,7 +42,7 @@ _img() {
 			local value="<img src=\"${BASH_REMATCH[2]}\" alt=\"${BASH_REMATCH[1]}\"/>"
 			rep="${rep//"$line"/$value}"
 		fi
-	done < <(grep -o '!\[[^[]\+\]([^)]\+)' <<< "$in")
+	done < <(grep -o '!\[[^]]\+\]([^)]\+)' <<< "$in")
 	echo "$rep"
 }
 
@@ -55,7 +55,7 @@ _a() {
 			local value="<a href=\"${BASH_REMATCH[2]}\">${BASH_REMATCH[1]}</a>"
 			rep="${rep//"$line"/$value}"
 		fi
-	done < <(grep -o '\[[^[]\+\]([^)]\+)' <<< "$in")
+	done < <(grep -o '\[[^]]\+\]([^)]\+)' <<< "$in")
 	echo "$rep"
 }
 
