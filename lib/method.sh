@@ -34,7 +34,9 @@ baker_prepare() {
 
 # $1 = file
 need_bake() {
-	grep -q "^$(md5sum "$1")$" .baker/status && return 1 || return 0
+	grep -q "^$(md5sum "$1")$" .baker/status && return 1
+	[[ "$(header draft < "$1")" == true ]] && return 1
+	return 0
 }
 
 need_bake_index() {
@@ -115,7 +117,7 @@ post_binding() {
 
 post_collection_binding() {
 	#posts
-	local posts=""
+	local posts
 	local i=0
 	local post
 	while IFS= read -r post; do
@@ -131,7 +133,7 @@ post_collection_binding() {
 
 page_collection_binding() {
 	#pages
-	local pages=""
+	local pages
 	local i=0
 	local page
 	while IFS= read -r page; do

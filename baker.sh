@@ -32,10 +32,11 @@ case "$1" in
         title="$(date +%Y-%m-%d)-$(slug ${*:2})"
         echo "$POST_DIR/$title.md"
         cat > "$POST_DIR/$title.md" <<EOF
-layout: post
 title: ${*:2}
 date: $(date +"%Y-%m-%d %H:%M")
 categories:
+layout: post
+draft: true
 ---
 
 EOF
@@ -54,10 +55,11 @@ EOF
         fi
         echo "$PAGE_DIR/$title.md"
         cat > "$PAGE_DIR/$title.md" <<EOF
-layout: page
 title: ${*:2}
-meta: 
 date: $(date +"%Y-%m-%d %H:%M")
+meta: 
+layout: page
+draft: true
 ---
 
 EOF
