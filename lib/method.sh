@@ -39,11 +39,25 @@ need_bake() {
 	return 0
 }
 
-need_bake_index() {
+need_bake_post() {
+	local i=0
 	local post
 	while IFS= read -r post; do
 		need_bake "$post" && return 0
+		((i++))
 	done < <(list_post)
+	(( $i == $(grep " $POST_DIR/" .baker/status | wc -l) )) || return 0
+	return 1
+}
+
+need_bake_page() {
+	local i=0
+	local page
+	while IFS= read -r page; do
+		need_bake "$page" && return 0
+		((i++))
+	done < <(list_page)
+	(( $i == $(grep " $PAGE_DIR/" .baker/status | wc -l) )) || return 0
 	return 1
 }
 
@@ -156,7 +170,7 @@ page_binding() {
 }
 
 bake_index() {
-	need_bake_index || return
+	need_bake_post || need_bake_page || return
 
 	local post_collection="$(post_collection_binding)"
 	local page_collection="$(page_collection_binding)"
