@@ -39,6 +39,7 @@ categories:
 ---
 
 EOF
+        [[ "$EDITOR" ]] && $EDITOR "$POST_DIR/$title.md"
         ;;
     page)
         if [[ ! "${*:2}" ]]; then
@@ -60,6 +61,7 @@ date: $(date +"%Y-%m-%d %H:%M")
 ---
 
 EOF
+        [[ "$EDITOR" ]] && $EDITOR "$PAGE_DIR/$title.md"
         ;;
     *)
         cat <<EOF
