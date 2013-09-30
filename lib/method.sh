@@ -46,7 +46,7 @@ need_bake_post() {
 		need_bake "$post" && return 0
 		((i++))
 	done < <(list_post)
-	(( $i == $(grep " $POST_DIR/" .baker/status | wc -l) )) || return 0
+	(( $i < $(grep " $POST_DIR/" .baker/status | wc -l) )) && return 0
 	return 1
 }
 
@@ -57,7 +57,7 @@ need_bake_page() {
 		need_bake "$page" && return 0
 		((i++))
 	done < <(list_page)
-	(( $i == $(grep " $PAGE_DIR/" .baker/status | wc -l) )) || return 0
+	(( $i < $(grep " $PAGE_DIR/" .baker/status | wc -l) )) && return 0
 	return 1
 }
 
@@ -133,14 +133,14 @@ post_binding() {
 
 post_collection_binding() {
 	#posts
-	local posts
+	local posts=""
 	local i=0
 	local post
 	while IFS= read -r post; do
-		if (( i == 0 )); then
-			posts="$(: | map_set "$i" "$(post_binding "$post")")"
-		else
+		if [[ "$posts" ]]; then
 			posts="$(map_set "$i" "$(post_binding "$post")" <<<"$posts")"
+		else
+			posts="$(: | map_set "$i" "$(post_binding "$post")")"
 		fi
 		((i++))
 	done < <(list_post | tac)
@@ -149,14 +149,14 @@ post_collection_binding() {
 
 page_collection_binding() {
 	#pages
-	local pages
+	local pages=""
 	local i=0
 	local page
 	while IFS= read -r page; do
-		if (( i == 0 )); then
-			pages="$(: | map_set "$i" "$(page_binding "$page")")"
-		else
+		if [[ "$pages" ]]; then
 			pages="$(map_set "$i" "$(page_binding "$page")" <<<"$pages")"
+		else
+			pages="$(: | map_set "$i" "$(page_binding "$page")")"
 		fi
 		((i++))
 	done < <(list_page | tac)
