@@ -1,7 +1,7 @@
 # $1 = item per page
 paginate() {
 	local buf=""
-	local pages=""
+	local pages
 	local i=0
 	local count=0
 	local line
