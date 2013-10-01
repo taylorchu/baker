@@ -14,12 +14,16 @@ bake_pages() {
 		need_bake "$page" || continue
 
 		echo "$page"
+
+		local layout="$LAYOUT_DIR/$(header layout <"$page").html"
+		[[ -f "$layout" ]] || error "layout not found: $layout"
+
 		template "$(map_set \
 			title "$(header title < "$page")" \
 			meta "$(header meta < "$page")" \
 			content "$(body <"$page" | markdown )" \
 			<<< "$1")" \
-			< "$LAYOUT_DIR/$(header layout <"$page").html" \
+			< "$layout" \
 			> "$OUTPUT_DIR/$(md_to_url "$page")"
 		update_status "$page"
 	done < <(list_page)
@@ -73,6 +77,10 @@ bake_posts() {
 		need_bake "$post" || continue
 
 		echo "$post"
+
+		local layout="$LAYOUT_DIR/$(header layout <"$post").html"
+		[[ -f "$layout" ]] || error "layout not found: $layout"
+
 		template "$(map_set \
 			title "$(header title < "$post")" \
 			date "$(header date < "$post")" \
@@ -82,7 +90,7 @@ bake_posts() {
 			next.title "$(next_post_title "$post")" \
 			content "$(body <"$post" | markdown )" \
 			<<< "$1")" \
-			< "$LAYOUT_DIR/$(header layout <"$post").html" \
+			< "$layout" \
 			> "$OUTPUT_DIR/$(md_to_url "$post")"
 		update_status "$post"
 	done < <(list_post)
@@ -175,13 +183,17 @@ bake_index() {
 	local post_collection="$(post_collection_binding)"
 	local page_collection="$(page_collection_binding)"
 
-	echo index	
+	echo index
+	local layout="$LAYOUT_DIR/index.html"
+	[[ -f "$layout" ]] || error "layout not found: $layout"
 	template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
-		< "$LAYOUT_DIR/index.html" > "$OUTPUT_DIR/index.html"
+		< "$layout" > "$OUTPUT_DIR/index.html"
 
 	echo rss
+	local layout="$LAYOUT_DIR/rss.html"
+	[[ -f "$layout" ]] || error "layout not found: $layout"
 	template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
-		< "$LAYOUT_DIR/rss.html" > "$OUTPUT_DIR/rss.xml"
+		< "$layout" > "$OUTPUT_DIR/rss.xml"
 }
 
 summary() {
