@@ -1,30 +1,40 @@
 # $1 = binding
 
+no_draft() {
+	local line
+	while IFS= read -r line; do
+		[[ "$(header draft <"$line")" == true ]] || echo "$line"
+	done
+}
+
 list_page() {
-	find "$PAGE_DIR" -name "*.md" | sort
+	find "$PAGE_DIR" -name "*.md" | no_draft | sort
 }
 
 list_post() {
-	find "$POST_DIR" -name "*.md" | sort
+	find "$POST_DIR" -name "*.md" | no_draft | sort
+}
+
+# $1 = map
+# $2 = in
+# $3 = out
+safe_template() {
+	[[ -f "$2" ]] || error "layout not found: $2"
+	template "$1" < "$2" > "$3"
 }
 
 bake_pages() {
 	local page
 	while IFS= read -r page; do
 		need_bake "$page" || continue
-
 		echo "$page"
-
-		local layout="$LAYOUT_DIR/$(header layout <"$page").html"
-		[[ -f "$layout" ]] || error "layout not found: $layout"
-
-		template "$(map_set \
+		safe_template "$(map_set \
 			title "$(header title < "$page")" \
 			meta "$(header meta < "$page")" \
 			content "$(body <"$page" | markdown )" \
 			<<< "$1")" \
-			< "$layout" \
-			> "$OUTPUT_DIR/$(md_to_url "$page")"
+			"$LAYOUT_DIR/$(header layout <"$page").html" \
+			"$OUTPUT_DIR/$(md_to_url "$page")"
 		update_status "$page"
 	done < <(list_page)
 }
@@ -38,31 +48,27 @@ baker_prepare() {
 
 # $1 = file
 need_bake() {
-	grep -q "^$(md5sum "$1")$" .baker/status && return 1
-	[[ "$(header draft < "$1")" == true ]] && return 1
-	return 0
+	! grep -q "^$(md5sum "$1")$" .baker/status
+}
+
+# $1 = dir
+check_collection() {
+	local i=0
+	local line
+	while IFS= read -r line; do
+		need_bake "$line" && return 0
+		((i++))
+	done
+	(( $i < $(grep " $1/" .baker/status | wc -l) )) && return 0
+	return 1
 }
 
 need_bake_post() {
-	local i=0
-	local post
-	while IFS= read -r post; do
-		need_bake "$post" && return 0
-		((i++))
-	done < <(list_post)
-	(( $i < $(grep " $POST_DIR/" .baker/status | wc -l) )) && return 0
-	return 1
+	list_post | check_collection "$POST_DIR"
 }
 
 need_bake_page() {
-	local i=0
-	local page
-	while IFS= read -r page; do
-		need_bake "$page" && return 0
-		((i++))
-	done < <(list_page)
-	(( $i < $(grep " $PAGE_DIR/" .baker/status | wc -l) )) && return 0
-	return 1
+	list_page | check_collection "$PAGE_DIR"
 }
 
 # $1 = file
@@ -77,11 +83,7 @@ bake_posts() {
 		need_bake "$post" || continue
 
 		echo "$post"
-
-		local layout="$LAYOUT_DIR/$(header layout <"$post").html"
-		[[ -f "$layout" ]] || error "layout not found: $layout"
-
-		template "$(map_set \
+		safe_template "$(map_set \
 			title "$(header title < "$post")" \
 			date "$(header date < "$post")" \
 			prev.url "$(prev_post_url "$post")" \
@@ -90,8 +92,8 @@ bake_posts() {
 			next.title "$(next_post_title "$post")" \
 			content "$(body <"$post" | markdown )" \
 			<<< "$1")" \
-			< "$layout" \
-			> "$OUTPUT_DIR/$(md_to_url "$post")"
+			"$LAYOUT_DIR/$(header layout <"$post").html" \
+			"$OUTPUT_DIR/$(md_to_url "$post")"
 		update_status "$post"
 	done < <(list_post)
 }
@@ -139,34 +141,28 @@ post_binding() {
 		summary "$(body <"$1" | summary)"
 }
 
-post_collection_binding() {
-	local posts
+# $1 = function
+filter() {
+	local list
 	local i=0
-	local post
-	while IFS= read -r post; do
-		if [[ "$posts" ]]; then
-			posts="$(map_set "$i" "$(post_binding "$post")" <<<"$posts")"
+	local line
+	while IFS= read -r line; do
+		if [[ "$list" ]]; then
+			list="$(map_set "$i" "$($1 "$line")" <<<"$list")"
 		else
-			posts="$(: | map_set "$i" "$(post_binding "$post")")"
+			list="$(: | map_set "$i" "$($1 "$line")")"
 		fi
 		((i++))
-	done < <(list_post | tac)
-	echo "$posts"
+	done
+	echo "$list"
+}
+
+post_collection_binding() {
+	list_post | tac | filter post_binding
 }
 
 page_collection_binding() {
-	local pages
-	local i=0
-	local page
-	while IFS= read -r page; do
-		if [[ "$pages" ]]; then
-			pages="$(map_set "$i" "$(page_binding "$page")" <<<"$pages")"
-		else
-			pages="$(: | map_set "$i" "$(page_binding "$page")")"
-		fi
-		((i++))
-	done < <(list_page | tac)
-	echo "$pages"
+	list_page | tac | filter page_binding
 }
 
 page_binding() {
@@ -182,16 +178,12 @@ bake_index() {
 	local page_collection="$(page_collection_binding)"
 
 	echo index
-	local layout="$LAYOUT_DIR/index.html"
-	[[ -f "$layout" ]] || error "layout not found: $layout"
-	template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
-		< "$layout" > "$OUTPUT_DIR/index.html"
+	safe_template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
+		"$LAYOUT_DIR/index.html" "$OUTPUT_DIR/index.html"
 
 	echo rss
-	local layout="$LAYOUT_DIR/rss.html"
-	[[ -f "$layout" ]] || error "layout not found: $layout"
-	template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
-		< "$layout" > "$OUTPUT_DIR/rss.xml"
+	safe_template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
+		"$LAYOUT_DIR/rss.html" "$OUTPUT_DIR/rss.xml"
 }
 
 summary() {

@@ -163,13 +163,12 @@ _snippet() {
 
 template() {
 	local in="$(cat)"
-	local map="$1"
-	while true; do
-		map="$(map_set ... "$(body <<<"$in" | _all "$map")" <<<"$map")"
-		local layout="$(header layout <<<"$in")"
-		[[ "$layout" ]] || break
+	local rep="$(body <<<"$in" | _all "$1")"
+	local layout="$(header layout <<<"$in")"
+	if [[ "$layout" ]]; then
 		[[ -f "$LAYOUT_DIR/$layout.html" ]] || debug "layout not found: $layout"
-		in="$(< "$LAYOUT_DIR/$layout.html")"
-	done
-	map_get ... <<<"$map"
+		template "$(map_set ... "$rep" <<<"$1")" < "$LAYOUT_DIR/$layout.html"
+	else
+		echo "$rep"
+	fi
 }
