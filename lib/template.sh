@@ -77,14 +77,7 @@ _foreach() {
 	is_map <<<"$map" || return
 	local key
 	while IFS= read -r key; do
-		local sub_map=$(map_get "$key" <<<"$map")
-		local binding="$1"
-		local binding_key
-		while IFS= read -r binding_key; do
-			binding="$(map_set "$binding_key" "$(map_get "$binding_key" <<<"$sub_map")" \
-				<<<"$binding")"
-		done < <(map_keys <<<"$sub_map")
-		_all "$binding" <<<"$section"
+		_all "$(map_get "$key" <<<"$map")" <<<"$section"
 	done < <(map_keys <<<"$map")
 }
 
