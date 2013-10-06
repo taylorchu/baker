@@ -26,6 +26,7 @@ safe_template() {
 bake_pages() {
 	local page
 	while IFS= read -r page; do
+		(
 		need_bake "$page" || continue
 		echo "$page"
 		safe_template "$(map_set \
@@ -36,7 +37,9 @@ bake_pages() {
 			"$LAYOUT_DIR/$(header layout <"$page").html" \
 			"$OUTPUT_DIR/$(md_to_url "$page")"
 		update_status "$page"
+		) &
 	done < <(list_page)
+	wait
 }
 
 baker_prepare() {
@@ -80,8 +83,8 @@ update_status() {
 bake_posts() {
 	local post
 	while IFS= read -r post; do
+		(
 		need_bake "$post" || continue
-
 		echo "$post"
 		safe_template "$(map_set \
 			title "$(header title < "$post")" \
@@ -95,7 +98,9 @@ bake_posts() {
 			"$LAYOUT_DIR/$(header layout <"$post").html" \
 			"$OUTPUT_DIR/$(md_to_url "$post")"
 		update_status "$post"
+		) &
 	done < <(list_post)
+	wait
 }
 
 md_to_url() {
@@ -176,14 +181,18 @@ bake_index() {
 
 	local post_collection="$(post_collection_binding)"
 	local page_collection="$(page_collection_binding)"
-
+	(
 	echo index
 	safe_template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
 		"$LAYOUT_DIR/index.html" "$OUTPUT_DIR/index.html"
-
+	) &
+	(
 	echo rss
 	safe_template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
 		"$LAYOUT_DIR/rss.html" "$OUTPUT_DIR/rss.xml"
+	) &
+
+	wait
 }
 
 summary() {
