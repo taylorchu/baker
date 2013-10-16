@@ -241,7 +241,7 @@ _audio() {
 	local line
 	while IFS= read -r line; do
 		if [[ "$line" =~ ^\!\[audio\]\((.+)\)$ ]]; then
-			local file="$CONTENT_DIR/${BASH_REMATCH[1]}.aac"
+			local file="$CONTENT_DIR/${BASH_REMATCH[1]}.mp3"
 			if [[ -f "$file" ]]; then
 				local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", width: 480, height: 30});</script>"
 				rep="${rep//"$line"/$value}"

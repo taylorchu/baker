@@ -86,7 +86,7 @@ EOF
         fi
         if [[ "$2" =~ ^(.*/)?([^/]+)\.[^.]+$ ]]; then
             filename="$(slug "${BASH_REMATCH[2]}")"
-            ffmpeg -i "$2" -acodec aac -strict -2 "$CONTENT_DIR/$filename.aac" -loglevel warning && \
+            ffmpeg -i "$2" -acodec mp3 "$CONTENT_DIR/$filename.mp3" -loglevel warning && \
             echo '!'"[audio]($filename)"
         fi
         ;;
