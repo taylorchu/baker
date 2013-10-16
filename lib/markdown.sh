@@ -235,8 +235,45 @@ _ul() {
 	$in_tag && echo "</ul>"
 }
 
+_audio() {
+	local in="$(cat)"
+	local rep="$in"
+	local line
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\!\[audio\]\((.+)\)$ ]]; then
+			local file="$CONTENT_DIR/${BASH_REMATCH[1]}.aac"
+			if [[ -f "$file" ]]; then
+				local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", width: 480, height: 30});</script>"
+				rep="${rep//"$line"/$value}"
+			else
+				rep="${rep//"$line"/}"
+			fi
+		fi
+	done < <(grep -o '!\[audio\]([^)]\+)' <<< "$in")
+	echo "$rep"
+}
+
+_video() {
+	local in="$(cat)"
+	local rep="$in"
+	local line
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\!\[video\]\((.+)\)$ ]]; then
+			local file="$CONTENT_DIR/${BASH_REMATCH[1]}.mp4"
+			local preview="$CONTENT_DIR/${BASH_REMATCH[1]}.jpg"
+			if [[ -f "$file" ]]; then
+				local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", image: \"$preview\"});</script>"
+				rep="${rep//"$line"/$value}"
+			else
+				rep="${rep//"$line"/}"
+			fi
+		fi
+	done < <(grep -o '!\[video\]([^)]\+)' <<< "$in")
+	echo "$rep"
+}
+
 _markdown() {
-	_ul | _ol | _blockquote | _pre | _strong | _em | _img | _a | _code | _hr | _h | _p
+	_ul | _ol | _blockquote | _pre | _strong | _em | _audio | _video | _img | _a | _code | _hr | _h | _p
 }
 
 markdown() {

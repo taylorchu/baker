@@ -10,3 +10,5 @@ this is the markdown parser in bash.
 > quote
 > > quote2
 > > quote2
+![audio](dumb-ways-to-die-youtube)
+![video](howls-moving-castle-soundtrack-sky-stroll-with-download-link)

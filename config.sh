@@ -5,6 +5,7 @@ readonly PUBLIC_DIR=public
 readonly LAYOUT_DIR=layouts
 readonly INCLUDE_DIR=includes
 readonly PAGE_DIR=pages
+readonly CONTENT_DIR=content
 
 # debug
 readonly DEBUG=debug

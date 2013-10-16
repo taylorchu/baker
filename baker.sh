@@ -65,6 +65,31 @@ draft: true
 EOF
         [[ "$EDITOR" ]] && $EDITOR "$PAGE_DIR/$title.md"
         ;;
+    video)
+        headline video
+        if ! type ffmpeg &>/dev/null; then
+            echo "ffmpeg not found"
+            exit 1
+        fi
+        if [[ "$2" =~ ^(.*/)?([^/]+)\.[^.]+$ ]]; then
+            filename="$(slug "${BASH_REMATCH[2]}")"
+            ffmpeg -i "$2" -vcodec h264 -acodec aac -strict -2 "$CONTENT_DIR/$filename.mp4" -loglevel warning && \
+            ffmpeg -ss 00:00:01 -i "$CONTENT_DIR/$filename.mp4" -vframes 1 "$CONTENT_DIR/$filename.jpg" -loglevel warning && \
+            echo '!'"[video]($filename)"
+        fi
+        ;;
+    audio)
+        headline audio
+        if ! type ffmpeg &>/dev/null; then
+            echo "ffmpeg not found"
+            exit 1
+        fi
+        if [[ "$2" =~ ^(.*/)?([^/]+)\.[^.]+$ ]]; then
+            filename="$(slug "${BASH_REMATCH[2]}")"
+            ffmpeg -i "$2" -acodec aac -strict -2 "$CONTENT_DIR/$filename.aac" -loglevel warning && \
+            echo '!'"[audio]($filename)"
+        fi
+        ;;
     *)
         cat <<EOF
 baker

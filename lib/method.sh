@@ -47,6 +47,7 @@ baker_prepare() {
 	[[ -f .baker/status ]] || touch .baker/status
 	[[ -d "$OUTPUT_DIR" ]] || mkdir "$OUTPUT_DIR"
 	cp -r "$PUBLIC_DIR"/* "$OUTPUT_DIR"
+	cp -r "$CONTENT_DIR" "$OUTPUT_DIR"
 }
 
 # $1 = file
