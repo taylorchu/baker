@@ -242,11 +242,12 @@ _audio() {
 	while IFS= read -r line; do
 		if [[ "$line" =~ ^\!\[audio\]\((.+)\)$ ]]; then
 			local file="$CONTENT_DIR/${BASH_REMATCH[1]}.mp3"
-			if [[ ! -f "$file" ]]; then
-				file="http://www.youtube.com/watch?v=${BASH_REMATCH[1]}"
+			if [[ -f "$file" ]]; then
+				local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", height: 30});</script>"
+				rep="${rep//"$line"/$value}"
+			else
+				rep="${rep//"$line"/}"
 			fi
-			local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", height: 30});</script>"
-			rep="${rep//"$line"/$value}"
 		fi
 	done < <(grep -o '!\[audio\]([^)]\+)' <<< "$in")
 	echo "$rep"
@@ -264,7 +265,7 @@ _video() {
 				preview="$CONTENT_DIR/${BASH_REMATCH[1]}.jpg"
 			else
 				file="http://www.youtube.com/watch?v=${BASH_REMATCH[1]}"
-				preview="http://img.youtube.com/vi/${BASH_REMATCH[1]}/default.jpg"
+				preview="http://img.youtube.com/vi/${BASH_REMATCH[1]}/hqdefault.jpg"
 			fi
 			local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", image: \"$preview\"});</script>"
 			rep="${rep//"$line"/$value}"
