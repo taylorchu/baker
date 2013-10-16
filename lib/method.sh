@@ -48,8 +48,8 @@ need_bake() {
 bake_posts() {
 	local post
 	while IFS= read -r post; do
-		(
 		need_bake "$post" || continue
+		(
 		echo "$post"
 		safe_template "$(map_merge "$1" "$(post_binding "$post")")" \
 			"$LAYOUT_DIR/$(header layout <"$post").html" \
@@ -62,8 +62,8 @@ bake_posts() {
 bake_pages() {
 	local page
 	while IFS= read -r page; do
-		(
 		need_bake "$page" || continue
+		(
 		echo "$page"
 		safe_template "$(map_merge "$1" "$(page_binding "$page")")" \
 			"$LAYOUT_DIR/$(header layout <"$page").html" \
@@ -118,7 +118,7 @@ post_binding() {
 		prev.title "$(prev_post_title "$1")" \
 		next.url "$(next_post_url "$1")" \
 		next.title "$(next_post_title "$1")" \
-		content "$(body <"$1" | markdown )"
+		content "$(body <"$1" | markdown)"
 }
 
 page_binding() {
