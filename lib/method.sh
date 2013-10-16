@@ -23,62 +23,26 @@ safe_template() {
 	template "$1" < "$2" > "$3"
 }
 
-bake_pages() {
-	local page
-	while IFS= read -r page; do
-		(
-		need_bake "$page" || continue
-		echo "$page"
-		safe_template "$(map_set \
-			title "$(header title < "$page")" \
-			meta "$(header meta < "$page")" \
-			content "$(body <"$page" | markdown )" \
-			<<< "$1")" \
-			"$LAYOUT_DIR/$(header layout <"$page").html" \
-			"$OUTPUT_DIR/$(md_to_url "$page")"
-		update_status "$page"
-		) &
-	done < <(list_page)
-	wait
-}
-
 baker_prepare() {
 	[[ -d .baker ]] || mkdir .baker
 	[[ -f .baker/status ]] || touch .baker/status
+	: > .baker/status_new
 	[[ -d "$OUTPUT_DIR" ]] || mkdir "$OUTPUT_DIR"
 	cp -r "$PUBLIC_DIR"/* "$OUTPUT_DIR"
 	cp -r "$CONTENT_DIR" "$OUTPUT_DIR"
 }
 
+baker_finish() {
+	mv .baker/status_new .baker/status
+	[[ -f "$DEBUG" ]] && error "see '$DEBUG'"
+}
+
 # $1 = file
 need_bake() {
-	! grep -q "^$(md5sum "$1")$" .baker/status
-}
-
-# $1 = dir
-check_collection() {
-	local i=0
-	local line
-	while IFS= read -r line; do
-		need_bake "$line" && return 0
-		((i++))
-	done
-	(( $i < $(grep " $1/" .baker/status | wc -l) )) && return 0
-	return 1
-}
-
-need_bake_post() {
-	list_post | check_collection "$POST_DIR"
-}
-
-need_bake_page() {
-	list_page | check_collection "$PAGE_DIR"
-}
-
-# $1 = file
-update_status() {
-	echo "$(grep -v "  $1$" .baker/status)" > .baker/status
-	md5sum "$1" >> .baker/status
+	local md5
+	[[ -d  "$1" ]] && md5="$(ls -lR "$1" | md5sum | sed "s|-|$1|g")" || md5="$(md5sum "$1")"
+	echo "$md5" >> .baker/status_new
+	! grep -q "^$md5$" .baker/status
 }
 
 bake_posts() {
@@ -87,20 +51,25 @@ bake_posts() {
 		(
 		need_bake "$post" || continue
 		echo "$post"
-		safe_template "$(map_set \
-			title "$(header title < "$post")" \
-			date "$(header date < "$post")" \
-			prev.url "$(prev_post_url "$post")" \
-			prev.title "$(prev_post_title "$post")" \
-			next.url "$(next_post_url "$post")" \
-			next.title "$(next_post_title "$post")" \
-			content "$(body <"$post" | markdown )" \
-			<<< "$1")" \
+		safe_template "$(map_merge "$1" "$(post_binding "$post")")" \
 			"$LAYOUT_DIR/$(header layout <"$post").html" \
 			"$OUTPUT_DIR/$(md_to_url "$post")"
-		update_status "$post"
 		) &
 	done < <(list_post)
+	wait
+}
+
+bake_pages() {
+	local page
+	while IFS= read -r page; do
+		(
+		need_bake "$page" || continue
+		echo "$page"
+		safe_template "$(map_merge "$1" "$(page_binding "$page")")" \
+			"$LAYOUT_DIR/$(header layout <"$page").html" \
+			"$OUTPUT_DIR/$(md_to_url "$page")"
+		) &
+	done < <(list_page)
 	wait
 }
 
@@ -144,7 +113,20 @@ post_binding() {
 		url "$(md_to_url "$1")" \
 		date "$date" \
 		rss.date "$(date -R -d "$date")" \
-		summary "$(body <"$1" | summary)"
+		summary "$(body <"$1" | summary)" \
+		prev.url "$(prev_post_url "$1")" \
+		prev.title "$(prev_post_title "$1")" \
+		next.url "$(next_post_url "$1")" \
+		next.title "$(next_post_title "$1")" \
+		content "$(body <"$1" | markdown )"
+}
+
+page_binding() {
+	: | map_set \
+		title "$(header title < "$1")" \
+		url "$(md_to_url "$1")" \
+		meta "$(header meta < "$1")" \
+		content "$(body <"$1" | markdown)"
 }
 
 # $1 = function
@@ -171,14 +153,13 @@ page_collection_binding() {
 	list_page | tac | filter page_binding
 }
 
-page_binding() {
-	: | map_set \
-		title "$(header title < "$1")" \
-		url "$(md_to_url "$1")"
-}
-
 bake_index() {
-	need_bake_post || need_bake_page || return
+	bake_index=false
+	need_bake "$POST_DIR" && bake_index=true
+	need_bake "$PAGE_DIR" && bake_index=true
+	need_bake "$LAYOUT_DIR" && bake_index=true
+	need_bake "$INCLUDE_DIR" && bake_index=true
+	$bake_index || return
 
 	local post_collection="$(post_collection_binding)"
 	local page_collection="$(page_collection_binding)"
@@ -223,5 +204,5 @@ bake() {
 	headline buiding pages
 	timer bake_pages "$binding"
 
-	[[ -f "$DEBUG" ]] && error "see '$DEBUG'"
+	baker_finish
 }

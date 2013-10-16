@@ -45,3 +45,10 @@ is_map() {
 	done
 	return 0
 }
+
+map_merge() {
+	while [[ "$1" ]]; do
+		echo "$1"
+		shift
+	done
+}

@@ -96,6 +96,8 @@ baker
     post [title]        create new post
     page [title]        create new post
     bake [--force]      ship static page
+    video [file]        create video markdown
+    audio [file]        create audio markdown
 EOF
         ;;
 esac
