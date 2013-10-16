@@ -1,4 +1,6 @@
 taylorchu.github.io
 .baker
 posts/
-content/
+content/*.jpg
+content/*.mp4
+content/*.mp3
