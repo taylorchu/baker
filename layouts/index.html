@@ -30,6 +30,9 @@
 				{% foreach pages %}
 					<a class="list-group-item" href="{{ url }}">{{ title }}</a>
 				{% endforeach %}
+				{% foreach tags %}
+					<a class="list-group-item" href="{{ value }}.html">{{ value }}</a>
+				{% endforeach %}
 				</div>
 				<pre>{% snippet cal %}</pre>
 				{% include baker %}

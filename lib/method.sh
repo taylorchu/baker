@@ -199,15 +199,16 @@ bake_index() {
 	$bake_index || return
 
 	local post_collection="$(post_collection_binding)"
-	local page_collection="$(page_collection_binding)"
 	(
 	echo index
-	safe_template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
+	local page_collection="$(page_collection_binding)"
+	local tag_list="$(list_tag | list_to_map)"
+	safe_template "$(map_set posts "$post_collection" pages "$page_collection" tags "$tag_list" <<<"$1")" \
 		"$LAYOUT_DIR/index.html" "$OUTPUT_DIR/index.html"
 	) &
 	(
 	echo rss
-	safe_template "$(map_set posts "$post_collection" pages "$page_collection" <<<"$1")" \
+	safe_template "$(map_set posts "$post_collection" <<<"$1")" \
 		"$LAYOUT_DIR/rss.html" "$OUTPUT_DIR/rss.xml"
 	) &
 
