@@ -1,25 +1,21 @@
-# $1 = binding
-
 no_draft() {
-	local line
-	while IFS= read -r line; do
-		[[ "$(header draft <"$line")" == true ]] || echo "$line"
-	done
+	[[ "$(header draft <"$1")" == true ]] && return 1 || return 0
 }
 
 list_page() {
-	find "$PAGE_DIR" -name "*.md" | no_draft | sort
+	find "$PAGE_DIR" -name "*.md" | list_filter no_draft | sort
 }
 
 list_post() {
-	find "$POST_DIR" -name "*.md" | no_draft | sort
+	find "$POST_DIR" -name "*.md" | list_filter no_draft | sort
+}
+
+get_tag() {
+	header tags <"$1" | split
 }
 
 list_tag() {
-	local line
-	while IFS= read -r line; do
-		header tags <"$line" | split
-	done < <(list_post) | sort -u
+	list_post | list_expand get_tag | sort -u
 }
 
 # $1 = map
@@ -110,7 +106,7 @@ md_to_url() {
 
 # $1 = file
 next_post() {
-	list_post | tac | grep "$1$" -A 1 | grep -v "$1$"
+	list_post | tac | list_next "$1"
 }
 
 next_post_title() {
@@ -124,7 +120,7 @@ next_post_url() {
 
 # $1 = file
 prev_post() {
-	list_post | tac | grep "$1$" -B 1 | grep -v "$1$"
+	list_post | tac | list_prev "$1"
 }
 
 prev_post_title() {
@@ -161,35 +157,20 @@ page_binding() {
 		content "$(body <"$1" | markdown)"
 }
 
-# $1 = function
-filter() {
-	local list
-	local i=0
-	local line
-	while IFS= read -r line; do
-		if [[ "$list" ]]; then
-			list="$(map_set "$i" "$($1 "$line")" <<<"$list")"
-		else
-			list="$(: | map_set "$i" "$($1 "$line")")"
-		fi
-		((i++))
-	done
-	echo "$list"
+post_has_tag() {
+	get_tag "$2" | grep -q "$1"
 }
 
 tag_binding() {
-	local line
-	while IFS= read -r line; do
-		header tags <"$line" | split | grep -q "$1" && echo "$line"
-	done < <(list_post)	| tac | filter post_binding
+	list_post | list_filter post_has_tag "$1" | tac | list_to_map_callback post_binding
 }
 
 post_collection_binding() {
-	list_post | tac | filter post_binding
+	list_post | tac | list_to_map_callback post_binding
 }
 
 page_collection_binding() {
-	list_page | tac | filter page_binding
+	list_page | tac | list_to_map_callback page_binding
 }
 
 bake_index() {
