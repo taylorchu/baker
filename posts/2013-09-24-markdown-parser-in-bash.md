@@ -1,7 +1,7 @@
 layout: post
 title: markdown parser in bash
 date: 2013-09-24 07:34
-categories:
+tags: tag, tag2, tag3
 ---
 
 this is the markdown parser in bash.

@@ -15,6 +15,13 @@ list_post() {
 	find "$POST_DIR" -name "*.md" | no_draft | sort
 }
 
+list_tag() {
+	local line
+	while IFS= read -r line; do
+		header tags <"$line" | split
+	done < <(list_post) | sort -u
+}
+
 # $1 = map
 # $2 = in
 # $3 = out
@@ -26,14 +33,22 @@ safe_template() {
 baker_prepare() {
 	[[ -d .baker ]] || mkdir .baker
 	[[ -f .baker/status ]] || touch .baker/status
+
 	: > .baker/status_new
 	[[ -d "$OUTPUT_DIR" ]] || mkdir "$OUTPUT_DIR"
 	cp -r "$PUBLIC_DIR"/* "$OUTPUT_DIR"
 	cp -r "$CONTENT_DIR" "$OUTPUT_DIR"
+
+	local need_full_bake=false
+	need_bake "$LAYOUT_DIR" && need_full_bake=true
+	need_bake "$INCLUDE_DIR" && need_full_bake=true
+	need_bake "$PUBLIC_DIR" && need_full_bake=true
+	need_bake "$BINDING" && need_full_bake=true
+	$need_full_bake && headline full bake &&  : > .baker/status
 }
 
 baker_finish() {
-	mv .baker/status_new .baker/status
+	sort -u -k 2 .baker/status_new > .baker/status
 	[[ -f "$DEBUG" ]] && error "see '$DEBUG'"
 }
 
@@ -70,6 +85,22 @@ bake_pages() {
 			"$OUTPUT_DIR/$(md_to_url "$page")"
 		) &
 	done < <(list_page)
+	wait
+}
+
+bake_tags() {
+	need_bake "$POST_DIR" || return
+	local tag
+	while IFS= read -r tag; do
+		(
+		echo "$tag"
+		safe_template "$(map_set \
+			tag "$tag" \
+			posts "$(tag_binding "$tag")" <<<"$1")" \
+			"$LAYOUT_DIR/tag.html" \
+			"$OUTPUT_DIR/$tag.html"
+		) &
+	done < <(list_tag)
 	wait
 }
 
@@ -114,6 +145,7 @@ post_binding() {
 		date "$date" \
 		rss.date "$(date -R -d "$date")" \
 		summary "$(body <"$1" | summary)" \
+		tags "$(header tags < "$1" | split | list_to_map)" \
 		prev.url "$(prev_post_url "$1")" \
 		prev.title "$(prev_post_title "$1")" \
 		next.url "$(next_post_url "$1")" \
@@ -145,6 +177,13 @@ filter() {
 	echo "$list"
 }
 
+tag_binding() {
+	local line
+	while IFS= read -r line; do
+		header tags <"$line" | split | grep -q "$1" && echo "$line"
+	done < <(list_post)	| tac | filter post_binding
+}
+
 post_collection_binding() {
 	list_post | tac | filter post_binding
 }
@@ -154,11 +193,9 @@ page_collection_binding() {
 }
 
 bake_index() {
-	bake_index=false
+	local bake_index=false
 	need_bake "$POST_DIR" && bake_index=true
 	need_bake "$PAGE_DIR" && bake_index=true
-	need_bake "$LAYOUT_DIR" && bake_index=true
-	need_bake "$INCLUDE_DIR" && bake_index=true
 	$bake_index || return
 
 	local post_collection="$(post_collection_binding)"
@@ -195,14 +232,17 @@ bake() {
 	local binding="$(< "$BINDING")"
 	is_map <<<"$binding" || error "invalid format: $BINDING"
 
-	headline buiding index
+	headline building index
 	timer bake_index "$binding"
 
-	headline buiding posts
+	headline building posts
 	timer bake_posts "$binding"
 
-	headline buiding pages
+	headline building pages
 	timer bake_pages "$binding"
+
+	headline building tags
+	timer bake_tags "$binding"
 
 	baker_finish
 }

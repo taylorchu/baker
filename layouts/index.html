@@ -16,6 +16,12 @@
 				{% foreach posts %}
 					<p class="lead"><a href="{{ url }}">{{ date }} - {{ title }}</a></p>
 					<div class="summary">{{{ summary }}}</div>
+					<p>
+					{% foreach tags %}
+						<a href="{{ value }}.html"><span class="label label-default">{{ value }}</span></a>  
+					{% endforeach %}
+					</p>
+					<hr/>
 				{% endforeach %}
 			</div>
 			<div class="col-md-4">
@@ -29,7 +35,7 @@
 				{% include baker %}
 			</div>
 		</div>
-
+		{% include footer %}
 	</div>
 </body>
 </html>

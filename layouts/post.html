@@ -8,13 +8,16 @@
 </head>
 <body>
 	<div class="container">
+		<ol class="breadcrumb">
+		  <li><a href="index.html">Home</a></li>
+		  <li class="active">{{ title }}</li>
+		</ol>
 		<div class="page-header">
 			<h1>{{ title }}</h1>
 		</div>
 		<div class="row">
 			<div class="col-md-8">
 				{{{ content }}}
-				{% include subscribe %}
 			</div>
 			<div class="col-md-4">
 				<dl class="dl-horizontal">
@@ -28,8 +31,11 @@
 					<dd><code>tailinchu [with] gmail</code></dd>
 				</dl>
 
-				<p class="text-center"><a href="index.html" class="btn btn-primary">Read more posts</a></p>
-
+				<p class="text-center">
+					{% foreach tags %}
+						<a href="{{ value }}.html"><span class="label label-default">{{ value }}</span></a>  
+					{% endforeach %}
+				</p>
 				<p class="text-center"><a href="mailto:tailinchu@mail.com" class="btn btn-default">Comment with Email</a></p>
 				<hr/>
 				{% include baker %}
@@ -44,6 +50,7 @@
 			<li class="next"><a href="{{ next.url }}">{{ next.title }} &raquo;</a></li>
 		{% endif %}
 		</ul>
+		{% include footer %}
 	</div>
 </body>
 </html>

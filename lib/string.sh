@@ -16,6 +16,10 @@ html_escape() {
 	-e 's|"|\&quot;|g'
 }
 
+split() {
+	sed -e 's|, |\n|g' -e 's|,|\n|g'
+}
+
 newline_escape() {
 	local line
 	while IFS= read -r line; do

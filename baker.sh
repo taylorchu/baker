@@ -11,7 +11,7 @@ case "$1" in
         case "$2" in
             --force)
                 rm -rf "$OUTPUT_DIR"/*
-                rm -f .baker/status
+                : > .baker/status
                 ;;
             "")
                 # just bake it
@@ -34,7 +34,7 @@ case "$1" in
         cat > "$POST_DIR/$title.md" <<EOF
 title: ${*:2}
 date: $(date +"%Y-%m-%d %H:%M")
-categories:
+tags:
 layout: post
 draft: true
 ---

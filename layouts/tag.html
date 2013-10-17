@@ -1,0 +1,27 @@
+---
+<!DOCTYPE html>
+<html>
+<head>
+	{% include bootstrap %}
+	{% include jwplayer %}
+	<title>{{ tag }} - {{ site.name }}</title>
+</head>
+<body>
+	<div class="container">
+		<ol class="breadcrumb">
+		  <li><a href="index.html">Home</a></li>
+		  <li class="active">{{ tag }}</li>
+		</ol>
+		<div class="row">
+			<div class="col-md-8">
+				{% foreach posts %}
+					<p class="lead"><a href="{{ url }}">{{ date }} - {{ title }}</a></p>
+					<div class="summary">{{{ summary }}}</div>
+					<hr/>
+				{% endforeach %}
+			</div>
+		</div>
+		{% include footer %}
+	</div>
+</body>
+</html>

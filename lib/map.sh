@@ -52,3 +52,7 @@ map_merge() {
 		shift
 	done
 }
+
+list_to_map() {
+	nl -s ': value: ' -w 1
+}
