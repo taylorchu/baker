@@ -144,7 +144,7 @@ post_binding() {
 		url "$(md_to_url "$1")" \
 		date "$date" \
 		rss.date "$(date -R -d "$date")" \
-		summary "$(body <"$1" | summary)" \
+		summary "$(body <"$1" | head -n 5 | markdown)" \
 		tags "$(header tags < "$1" | split | list_to_map)" \
 		prev.url "$(prev_post_url "$1")" \
 		prev.title "$(prev_post_title "$1")" \
@@ -213,19 +213,6 @@ bake_index() {
 	) &
 
 	wait
-}
-
-summary() {
-	local len
-	[[ "$1" =~ ^[0-9]+$ ]] && len=$1 || len=100
-	local rep=""
-	local newline=$'\n'
-	local line
-	while IFS= read -r line; do
-		rep+="$line$newline"
-		(( ${#rep} < $len )) || break
-	done
-	markdown <<< "$rep"
 }
 
 bake() {
