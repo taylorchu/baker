@@ -141,7 +141,7 @@ post_binding() {
 		date "$date" \
 		rss.date "$(date -R -d "$date")" \
 		summary "$(body <"$1" | head -n 5 | markdown)" \
-		tags "$(header tags < "$1" | split | list_to_map)" \
+		tags "$(get_tag "$1" | list_to_map)" \
 		prev.url "$(prev_post_url "$1")" \
 		prev.title "$(prev_post_title "$1")" \
 		next.url "$(next_post_url "$1")" \
