@@ -1,13 +1,17 @@
 no_draft() {
-	[[ "$(header draft <"$1")" == true ]] && return 1 || return 0
+	[[ "$(header draft <"$1")" != true ]]
 }
 
 list_page() {
+	cache_start && return
 	find "$PAGE_DIR" -name "*.md" | list_filter no_draft | sort
+	cache_end
 }
 
 list_post() {
+	cache_start && return
 	find "$POST_DIR" -name "*.md" | list_filter no_draft | sort
+	cache_end
 }
 
 get_tag() {
@@ -15,7 +19,9 @@ get_tag() {
 }
 
 list_tag() {
+	cache_start && return
 	list_post | list_expand get_tag | sort -u
+	cache_end
 }
 
 # $1 = map
@@ -30,7 +36,7 @@ baker_prepare() {
 	[[ -d .baker ]] || mkdir .baker
 	[[ -f .baker/status ]] || touch .baker/status
 
-	: > .baker/status_new
+	cp .baker/status /tmp/baker_status
 	[[ -d "$OUTPUT_DIR" ]] || mkdir "$OUTPUT_DIR"
 	cp -r "$PUBLIC_DIR"/* "$OUTPUT_DIR"
 	cp -r "$CONTENT_DIR" "$OUTPUT_DIR"
@@ -40,20 +46,26 @@ baker_prepare() {
 	need_bake "$INCLUDE_DIR" && need_full_bake=true
 	need_bake "$PUBLIC_DIR" && need_full_bake=true
 	need_bake "$BINDING" && need_full_bake=true
-	$need_full_bake && headline full bake &&  : > .baker/status
+	$need_full_bake && headline full bake &&  : > /tmp/baker_status
 }
 
 baker_finish() {
-	sort -u -k 2 .baker/status_new > .baker/status
+	if [[ -f /tmp/baker_status_tmp ]]; then
+		sort -u /tmp/baker_status_tmp | list_expand checksum > .baker/status
+	fi
+	rm -f /tmp/baker_status{,_tmp}
+	cache_clean
 	[[ -f "$DEBUG" ]] && error "see '$DEBUG'"
+}
+
+checksum() {
+	[[ -d  "$1" ]] && ls -lR "$1" | md5sum | sed "s|-|$1|g" || md5sum "$1"
 }
 
 # $1 = file
 need_bake() {
-	local md5
-	[[ -d  "$1" ]] && md5="$(ls -lR "$1" | md5sum | sed "s|-|$1|g")" || md5="$(md5sum "$1")"
-	echo "$md5" >> .baker/status_new
-	! grep -q "^$md5$" .baker/status
+	echo "$1" >> /tmp/baker_status_tmp
+	! grep -q "^$(checksum "$1")$" /tmp/baker_status
 }
 
 bake_posts() {
@@ -134,6 +146,7 @@ prev_post_url() {
 
 # $1 = file
 post_binding() {
+	cache_start "$1" && return
 	local date="$(header date < "$1")"
 	: | map_set \
 		title "$(header title < "$1")" \
@@ -147,14 +160,17 @@ post_binding() {
 		next.url "$(next_post_url "$1")" \
 		next.title "$(next_post_title "$1")" \
 		content "$(body <"$1" | markdown)"
+	cache_end "$1"
 }
 
 page_binding() {
+	cache_start "$1" && return
 	: | map_set \
 		title "$(header title < "$1")" \
 		url "$(md_to_url "$1")" \
 		meta "$(header meta < "$1")" \
 		content "$(body <"$1" | markdown)"
+	cache_end "$1" 
 }
 
 post_has_tag() {
@@ -201,9 +217,6 @@ bake() {
 	local binding="$(< "$BINDING")"
 	is_map <<<"$binding" || error "invalid format: $BINDING"
 
-	headline building index
-	timer bake_index "$binding"
-
 	headline building posts
 	timer bake_posts "$binding"
 
@@ -212,6 +225,9 @@ bake() {
 
 	headline building tags
 	timer bake_tags "$binding"
+
+	headline building index
+	timer bake_index "$binding"
 
 	baker_finish
 }

@@ -50,5 +50,9 @@ map_merge() {
 	while [[ "$1" ]]; do
 		echo "$1"
 		shift
-	done
+	done | sort -k 1,1 -u
+}
+
+map_numindex() {
+	cut -d ' ' -f 2- | nl -v 0 -s ': ' -w 1
 }

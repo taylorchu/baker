@@ -1,4 +1,3 @@
-
 list_to_map() {
 	nl -v 0 -s ': value: ' -w 1
 }
@@ -22,15 +21,13 @@ list_expand() {
 # $1 = function
 list_to_map_callback() {
 	local list
-	local i=0
 	local line
 	while IFS= read -r line; do
 		if [[ "$list" ]]; then
-			list="$(map_set "$i" "$($1 "$line")" <<<"$list")"
+			list="$(map_set "$line" "$("$@" "$line")" <<<"$list")"
 		else
-			list="$(: | map_set "$i" "$($1 "$line")")"
+			list="$(: | map_set "$line" "$("$@" "$line")")"
 		fi
-		((i++))
 	done
 	echo "$list"
 }

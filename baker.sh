@@ -11,7 +11,7 @@ case "$1" in
         case "$2" in
             --force)
                 rm -rf "$OUTPUT_DIR"/*
-                : > .baker/status
+                rm -f .baker/status
                 ;;
             "")
                 # just bake it
