@@ -41,17 +41,17 @@ list_control() {
 					
 					# 7 = 3 for start/end + 1 space
 					# 6 = without 1 space
-					(( $(stack_len) == 0 )) && echo "$start:$var:${in:$(($offset+7+${#start}+${#var})):$(($this_offset-$offset-7-${#start}-${#var}))}"
+					(( $(stack_len) == 0 )) && echo "$start:$var:${in:$((offset+7+${#start}+${#var})):$((this_offset-offset-7-${#start}-${#var}))}"
 					plain=$((this_offset + 6 + ${#end}))
 					;;
 			esac
 		fi
-	done < <(grep -b -o \
+	done < <(LANG= sed 's|[^\x00-\x7F]\+| |g' <<< "$in" | grep -b -o \
 		-e '{% foreach [a-z0-9.]\+ %}' \
 		-e '{% endforeach %}' \
 		-e '{% if \(! \)\?[a-z0-9.]\+ %}' \
-		-e '{% endif %}' \
-		<<<"$in")
+		-e '{% endif %}'
+		)
 	(( $(stack_len) == 0 )) && echo "plain::${in:$plain}"
 }
 

@@ -71,24 +71,23 @@ _p() {
 			# end
 			((in_other_tag--))
 
-			(( in_other_tag == 0 )) && plain=$(( $offset + ${#tag}))
+			(( in_other_tag == 0 )) && plain=$((offset + ${#tag}))
 		else
 			# start
 			if (( in_other_tag == 0 )); then
-				plaintext="$(trim <<< "${in:$plain:$(($offset - $plain))}")"
+				plaintext="$(trim <<< "${in:$plain:$((offset - plain))}")"
 				[[ "$plaintext" ]] && rep="${rep//"$plaintext"/$(_wrap <<<"$plaintext")}"
 			fi
 			
 			((in_other_tag++))
 		fi
-	done < <(grep -b -o \
+	done < <(LANG= sed 's|[^\x00-\x7F]\+| |g' <<< "$in" | grep -b -o \
 			-e '</\?ol>'\
 			-e '</\?ul>'\
 			-e '</\?pre>' \
 			-e '</\?blockquote>' \
 			-e '</\?h[1-6]>' \
-			-e '<hr/>' \
-			<<< "$in"
+			-e '<hr/>'
 		)
 	plaintext="$(trim <<< "${in:$plain}")"
 	[[ "$plaintext" ]] && rep="${rep//"$plaintext"/$(_wrap <<<"$plaintext")}"
