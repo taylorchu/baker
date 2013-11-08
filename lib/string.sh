@@ -30,3 +30,12 @@ newline_escape() {
 newline_unescape() {
 	echo -e "$(cat)"
 }
+
+regex_offset() {
+	local pat=()
+	while [[ "$1" ]]; do
+		pat+=(-e "$1")
+		shift
+	done
+	LANG= sed 's|[^\x00-\x7F]\+| |g' | grep -b -o "${pat[@]}"
+}
