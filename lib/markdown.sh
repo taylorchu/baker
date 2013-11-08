@@ -10,79 +10,27 @@ _h() {
 }
 
 _hr() {
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^-{3,}$ ]]; then
-			echo "<hr/>"
-		else
-			echo "$line"
-		fi
-	done
+	sed 's|^-\{3,\}$|<hr/>|g'
 }
 
 _code() {
-	local in="$(cat)"
-	local rep="$in"
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^\`(.+)\`$ ]]; then
-			local value="<code>${BASH_REMATCH[1]}</code>"
-			rep="${rep//"$line"/$value}"
-		fi
-	done < <(grep -o '`[^`]\+`' <<< "$in")
-	echo "$rep"
+	sed 's|`\([^`]\+\)`|<code>\1</code>|g'
 }
 
 _img() {
-	local in="$(cat)"
-	local rep="$in"
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^\!\[(.+)\]\((.+)\)$ ]]; then
-			local value="<img src=\"${BASH_REMATCH[2]}\" alt=\"${BASH_REMATCH[1]}\"/>"
-			rep="${rep//"$line"/$value}"
-		fi
-	done < <(grep -o '!\[[^]]\+\]([^)]\+)' <<< "$in")
-	echo "$rep"
+	sed 's|!\[\([^]]\+\)\](\([^)]\+\))|<img src="\2" alt="\1"/>|g'
 }
 
 _a() {
-	local in="$(cat)"
-	local rep="$in"
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^\[(.+)\]\((.+)\)$ ]]; then
-			local value="<a href=\"${BASH_REMATCH[2]}\">${BASH_REMATCH[1]}</a>"
-			rep="${rep//"$line"/$value}"
-		fi
-	done < <(grep -o '\[[^]]\+\]([^)]\+)' <<< "$in")
-	echo "$rep"
+	sed 's|\[\([^]]\+\)\](\([^)]\+\))|<a href="\2">\1</a>|g'
 }
 
 _em() {
-	local in="$(cat)"
-	local rep="$in"
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^[*_](.+)[*_]$ ]]; then
-			local value="<em>${BASH_REMATCH[1]}</em>"
-			rep="${rep//"$line"/$value}"
-		fi
-	done < <(grep -o -e '\*[^*]\+\*' -e '_[^_]\+_' <<< "$in")
-	echo "$rep"
+	sed -e 's|\*\([^*]\+\)\*|<em>\1</em>|g' -e 's|_\([^_]\+\)_|<em>\1</em>|g'
 }
 
 _strong() {
-	local in="$(cat)"
-	local rep="$in"
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^[*_]{2}(.+)[*_]{2}$ ]]; then
-			local value="<strong>${BASH_REMATCH[1]}</strong>"
-			rep="${rep//"$line"/$value}"
-		fi
-	done < <(grep -o -e '\*\*[^*]\+\*\*' -e '__[^_]\+__' <<< "$in")
-	echo "$rep"
+	sed -e 's|\*\*\([^*]\+\)\*\*|<strong>\1</strong>|g' -e 's|__\([^_]\+\)__|<strong>\1</strong>|g'
 }
 
 _wrap() {
