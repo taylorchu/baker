@@ -19,24 +19,25 @@
 			<div class="col-md-8">
 				{{{ content }}}
 			</div>
-			<div class="col-md-4">
-				<dl class="dl-horizontal">
-					<dt>author</dt> 
-					<dd>{{ author }}</dd>
-					
-					<dt>posted on</dt> 
-					<dd>{{ date }}</dd>
+			<div class="col-md-3 col-md-offset-1">
+				<p class="card">
+					<span class="meta">written by</span>
+					<br/><strong>{{ author }}</strong>
+					<br/>{{ date }}
+					<br/>tailinchu @ gmail
+				</p>
+				<hr/>
 
-					<dt><span class="glyphicon glyphicon-envelope"></span></dt>
-					<dd><code>tailinchu [with] gmail</code></dd>
-				</dl>
-
-				<p class="text-center">
+				<p class="card">
+					<span class="meta">published in</span>
+					<br/>{{ site.name }} {{ site.sub }}
+					<br/>
 					{% foreach tags %}
 						<a href="{{ value }}.html"><span class="label label-default">{{ value }}</span></a>  
 					{% endforeach %}
+					<br/><br/><a href="mailto:tailinchu@mail.com" class="btn btn-default">Comment with Email</a>
 				</p>
-				<p class="text-center"><a href="mailto:tailinchu@mail.com" class="btn btn-default">Comment with Email</a></p>
+
 				<hr/>
 				{% include baker %}
 			</div>

@@ -7,7 +7,7 @@ headline() {
 
 rm -f "$DEBUG"
 debug() {
-    echo "--- $(date +"%Y-%m-%d %H:%M")" >> "$DEBUG"
+    echo "--- $(date '+%Y-%m-%d %H:%M')" >> "$DEBUG"
     echo "$*" >> "$DEBUG"
     echo >> "$DEBUG"
 }

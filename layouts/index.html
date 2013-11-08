@@ -8,13 +8,13 @@
 </head>
 <body>
 	<div class="container">
-		<div class="page-header">
-			<h1>{{ site.name }} <small>{{ site.sub }}</small></h1>
-		</div>
+		<ol class="breadcrumb">
+		  <li class="active">Home</li>
+		</ol>
 		<div class="row">
 			<div class="col-md-8">		
 				{% foreach posts %}
-					<p class="lead"><a href="{{ url }}">{{ date }} - {{ title }}</a></p>
+					<p class="lead"><a href="{{ url }}">{{ title }}</a></p>
 					<div class="summary">{{{ summary }}}</div>
 					<p>
 					{% foreach tags %}
@@ -24,7 +24,7 @@
 					<hr/>
 				{% endforeach %}
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3 col-md-offset-1">
 				{% include subscribe %}
 				<div class="list-group">
 				{% foreach pages %}
@@ -34,7 +34,6 @@
 					<a class="list-group-item" href="{{ value }}.html">{{ value }}</a>
 				{% endforeach %}
 				</div>
-				<pre>{% snippet cal %}</pre>
 				{% include baker %}
 			</div>
 		</div>

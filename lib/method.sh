@@ -151,7 +151,7 @@ post_binding() {
 	: | map_set \
 		title "$(header title < "$1")" \
 		url "$(md_to_url "$1")" \
-		date "$date" \
+		date "$(date '+%a, %B %e, %Y %k:%M' -d "$date")" \
 		rss.date "$(date -R -d "$date")" \
 		summary "$(body <"$1" | head -n 5 | markdown)" \
 		tags "$(get_tag "$1" | list_to_map)" \
@@ -174,7 +174,7 @@ page_binding() {
 }
 
 post_has_tag() {
-	get_tag "$2" | grep -q "$1"
+	get_tag "$2" | grep -q "^$1$"
 }
 
 tag_binding() {
