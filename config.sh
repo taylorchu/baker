@@ -1,5 +1,5 @@
 # template engine
-readonly OUTPUT_DIR=taylorchu.github.io
+readonly OUTPUT_DIR=out
 readonly POST_DIR=posts
 readonly PUBLIC_DIR=public
 readonly LAYOUT_DIR=layouts

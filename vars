@@ -1,4 +1,5 @@
-site.name: 鐵塊 ˊ＿>ˋ
-author: tai
-site.sub: tai's blog
-site.url: taylorchu.github.io
+site.name: a baker blog
+author: author
+site.sub: yet another blog
+site.url: out
+email: email@example.org

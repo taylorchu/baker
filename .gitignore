@@ -1,6 +1,7 @@
-taylorchu.github.io
+out/
 .baker
 posts/
 content/*.jpg
 content/*.mp4
 content/*.mp3
+
