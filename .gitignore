@@ -1,7 +1,5 @@
 out/
+vars
 .baker
 posts/
-content/*.jpg
-content/*.mp4
-content/*.mp3
-
+content/
