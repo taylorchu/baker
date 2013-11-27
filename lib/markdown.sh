@@ -184,46 +184,21 @@ _ul() {
 }
 
 _audio() {
-	local in="$(cat)"
-	local rep="$in"
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^\!\[audio\]\((.+)\)$ ]]; then
-			local file="$CONTENT_DIR/${BASH_REMATCH[1]}.mp3"
-			if [[ -f "$file" ]]; then
-				local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", height: 30});</script>"
-				rep="${rep//"$line"/$value}"
-			else
-				rep="${rep//"$line"/}"
-			fi
-		fi
-	done < <(grep -o '!\[audio\]([^)]\+)' <<< "$in")
-	echo "$rep"
+	sed "s|!\[audio\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp3\", height: 30});</script>|g"
 }
 
 _video() {
-	local in="$(cat)"
-	local rep="$in"
-	local line
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^\!\[video\]\((.+)\)$ ]]; then
-			local file="$CONTENT_DIR/${BASH_REMATCH[1]}.mp4"
-			local preview
-			if [[ -f "$file" ]]; then
-				preview="$CONTENT_DIR/${BASH_REMATCH[1]}.jpg"
-			else
-				file="http://www.youtube.com/watch?v=${BASH_REMATCH[1]}"
-				preview="http://img.youtube.com/vi/${BASH_REMATCH[1]}/hqdefault.jpg"
-			fi
-			local value="<div id=\"${BASH_REMATCH[1]}\"></div><script>jwplayer(\"${BASH_REMATCH[1]}\").setup({file: \"$file\", image: \"$preview\"});</script>"
-			rep="${rep//"$line"/$value}"
-		fi
-	done < <(grep -o '!\[video\]([^)]\+)' <<< "$in")
-	echo "$rep"
+	sed \
+	-e 's|!\[video\](\([a-zA-Z0-9-]\{11\}\))|<div id="\1"></div><script>jwplayer("\1").setup({file: "http://www.youtube.com/watch?v=\1", image: "http://img.youtube.com/vi/\1/hqdefault.jpg"});</script>|g' \
+	-e "s|!\[video\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp4\", image: \"$CONTENT_DIR/\1.jpg\"});</script>|g"
+}
+
+_iframe() {
+	sed 's|!\[iframe\](\([^)]\+\))(\([^)]\+\))(\([^)]\+\))|<iframe style="width: \1; height: \2; border-width: 0; overflow: hidden" src="\3"></iframe>|g'
 }
 
 _markdown() {
-	_ul | _ol | _blockquote | _pre | _strong | _em | _audio | _video | _img | _a | _code | _hr | _h | _p
+	_ul | _ol | _blockquote | _pre | _strong | _em | _iframe | _audio | _video | _img | _a | _code | _hr | _h | _p
 }
 
 markdown() {
