@@ -1,7 +1,7 @@
 # baker, the real static blog generator in bash
 ![baker](http://i.imgur.com/Tngl5Vv.png)
-
 very concise and simple.
+![thumb](http://i.imgur.com/3RMqeR0.jpg?1)
 
 ## benefit
 1. easily hook any other command's stdout and put it into your blog.  
