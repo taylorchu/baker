@@ -56,6 +56,7 @@ baker_finish() {
 	rm -f /tmp/baker_status{,_tmp}
 	cache_clean
 	[[ -f "$DEBUG" ]] && error "see '$DEBUG'"
+	return 0
 }
 
 checksum() {

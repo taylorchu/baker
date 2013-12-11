@@ -99,5 +99,6 @@ baker
     video [file]        create video markdown
     audio [file]        create audio markdown
 EOF
+        exit 1
         ;;
 esac

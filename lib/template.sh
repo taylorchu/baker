@@ -1,11 +1,11 @@
 # $1 = key
 header() {
-	awk '/^---$/ {count++; next} count == 0' | grep "^$1: " | cut -d ' ' -f 2-
+	awk '/^---$/ {count++; next} count == 1' | grep "^$1: " | cut -d ' ' -f 2-
 }
 
 # $1 = file
 body() {
-	awk '/^---$/ {count++; next} count > 0'
+	awk '/^---$/ {count++; next} count != 1'
 }
 
 
