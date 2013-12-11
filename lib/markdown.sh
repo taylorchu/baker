@@ -184,17 +184,17 @@ _ul() {
 }
 
 _audio() {
-	sed "s|!\[audio\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp3\", height: 30});</script>|g"
+	sed "s|\[audio\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp3\", height: 30});</script>|g"
 }
 
 _video() {
 	sed \
-	-e 's|!\[video\](\([a-zA-Z0-9-]\{11\}\))|<div id="\1"></div><script>jwplayer("\1").setup({file: "http://www.youtube.com/watch?v=\1", image: "http://img.youtube.com/vi/\1/hqdefault.jpg"});</script>|g' \
-	-e "s|!\[video\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp4\", image: \"$CONTENT_DIR/\1.jpg\"});</script>|g"
+	-e 's|\[video\](\([a-zA-Z0-9-]\{11\}\))|<div id="\1"></div><script>jwplayer("\1").setup({file: "http://www.youtube.com/watch?v=\1", image: "http://img.youtube.com/vi/\1/hqdefault.jpg"});</script>|g' \
+	-e "s|\[video\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp4\", image: \"$CONTENT_DIR/\1.jpg\"});</script>|g"
 }
 
 _iframe() {
-	sed 's|!\[iframe\](\([^)]\+\))(\([^)]\+\))(\([^)]\+\))|<iframe style="width: \1; height: \2; border-width: 0; overflow: hidden" src="\3"></iframe>|g'
+	sed 's|\[iframe \([^x]\+\)x\([^]]\+\)\](\([^)]\+\))|<iframe style="width: \1; height: \2; border-width: 0; overflow: hidden" src="\3"></iframe>|g'
 }
 
 _markdown() {
