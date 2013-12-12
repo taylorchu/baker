@@ -13,8 +13,7 @@ map_set() {
 		sed '/^$/d'
 		return
 	fi
-	local escape="$(newline_escape <<<"$2")"
-	map_delete "$1" | append "$1: ${escape%%??}" | map_set "${@:3}"
+    map_delete "$1" | append "$1: $(trim <<<"$2" | newline_escape)" | map_set "${@:3}"
 }
 
 # $1 = key

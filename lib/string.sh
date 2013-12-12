@@ -1,5 +1,7 @@
 trim() {
-	[[ "$(cat)" =~ ^[:cntrl:]*(.*)[:cntrl:]*$ ]] && echo "${BASH_REMATCH[1]}"
+    local var
+    read  -rd '' var
+    echo "$var"
 }
 
 # convert string to hook
