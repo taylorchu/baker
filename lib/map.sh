@@ -10,7 +10,7 @@ append() {
 # $2 = value
 map_set() {
 	if [[ ! "$1" ]]; then
-		cat
+		sed '/^$/d'
 		return
 	fi
 	local escape="$(newline_escape <<<"$2")"

@@ -23,11 +23,7 @@ list_to_map_callback() {
 	local list
 	local line
 	while IFS= read -r line; do
-		if [[ "$list" ]]; then
-			list="$(map_set "$line" "$("$@" "$line")" <<<"$list")"
-		else
-			list="$(: | map_set "$line" "$("$@" "$line")")"
-		fi
+		list="$(map_set "$line" "$("$@" "$line")" <<<"$list")"
 	done
 	echo "$list"
 }

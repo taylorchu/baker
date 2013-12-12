@@ -6,17 +6,9 @@ paginate() {
 	local count=0
 	local line
 	while IFS= read -r line; do
-		if [[ "$buf" ]]; then
-			buf="$(map_set "$i" "$line" <<<"$buf")"
-		else
-			buf="$(: | map_set "$i" "$line")"
-		fi
+		buf="$(map_set "$i" "$line" <<<"$buf")"
 		if (( $i % $1 == $1 - 1 )); then
-			if [[ "$pages" ]]; then
-				pages="$(map_set "$count" "$buf"<<<"$pages")"
-			else
-				pages="$(: | map_set "$count" "$buf")"
-			fi
+			pages="$(map_set "$count" "$buf"<<<"$pages")"
 			((count++))
 			buf=""
 		fi
