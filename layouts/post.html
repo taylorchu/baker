@@ -1,56 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-	{% include bootstrap %}
-	{% include jwplayer %}
-	<title>{{ title }} - {{ date }} - {{ site.name }}</title>
+{% include bootstrap %}
+{% include jwplayer %}
+<title>{{ title }} - {{ date }} - {{ site.name }}</title>
 </head>
 <body>
-	<div class="container">
-		<ol class="breadcrumb">
-		  <li><a href="index.html">Home</a></li>
-		  <li class="active">{{ title }}</li>
-		</ol>
-		<div class="page-header">
-			<h1>{{ title }}</h1>
-		</div>
-		<div class="row">
-			<div class="col-md-8">
-				{{{ content }}}
-			</div>
-			<div class="col-md-3 col-md-offset-1">
-				<p class="card">
-					<span class="meta">written by</span>
-					<br/><strong>{{ author }}</strong>
-					<br/>{{ date }}
-                    <br/>{{ email }}
-				</p>
-				<hr/>
-
-				<p class="card">
-					<span class="meta">published in</span>
-					<br/>{{ site.name }} {{ site.sub }}
-					<br/>
-					{% foreach tags %}
-						<a href="{{ value }}.html"><span class="label label-default">{{ value }}</span></a>  
-					{% endforeach %}
-                    <br/><br/><a href="mailto:{{ email }}" class="btn btn-default">Comment with Email</a>
-				</p>
-
-				<hr/>
-				{% include baker %}
+<div class="container">
+	<ol class="breadcrumb">
+		<li><a href="index.html">Home</a></li>
+		<li class="active">{{ title }}</li>
+	</ol>
+	<div class="row">
+		<div class="col-md-9 col-md-offset-3">
+			<div class="page-header">
+				<h1>{{ title }}</h1>
 			</div>
 		</div>
-		<hr/>
-		<ul class="pager">
+	</div>
+	<div class="row">
+		<div class="col-md-3">
+			<p class="card">
+			<span class="meta">written by</span>
+			<br/><strong>{{ author }}</strong>
+			<br/>{{ date }}
+			<br/>{{ email }}
+			</p>
+			<hr/>
+
+			<p class="card">
+			<span class="meta">published in</span>
+			<br/>{{ site.name }} {{ site.sub }}
+			<br/>
+			{% foreach tags %}
+			<a href="{{ value }}.html"><span class="label label-default">{{ value }}</span></a>  
+			{% endforeach %}
+			<br/><br/><a href="mailto:{{ email }}" class="btn btn-default">Comment with Email</a>
+			</p>
+
+			<hr/>
+		</div>
+		<div class="col-md-9">
+			{{{ content }}}
+		</div>
+	</div>
+	{% include baker %}
+	<hr/>
+	<ul class="pager">
 		{% if prev.url %}
-			<li class="previous"><a href="{{ prev.url }}">&laquo; {{ prev.title }}</a></li>
+		<li class="previous"><a href="{{ prev.url }}">&laquo; {{ prev.title }}</a></li>
 		{% endif %}
 		{% if next.url %}
-			<li class="next"><a href="{{ next.url }}">{{ next.title }} &raquo;</a></li>
+		<li class="next"><a href="{{ next.url }}">{{ next.title }} &raquo;</a></li>
 		{% endif %}
-		</ul>
-		{% include footer %}
-	</div>
+	</ul>
+	{% include footer %}
+</div>
 </body>
 </html>

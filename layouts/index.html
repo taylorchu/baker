@@ -1,42 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-	{% include bootstrap %}
-	{% include jwplayer %}
-	<title>{{ site.name }} by {{ author }}</title>
+{% include bootstrap %}
+{% include jwplayer %}
+<title>{{ site.name }} by {{ author }}</title>
 </head>
 <body>
-	<div class="container">
-		<ol class="breadcrumb">
-		  <li class="active">Home</li>
-		</ol>
-		<div class="row">
-			<div class="col-md-8">		
-				{% foreach posts %}
-					<p class="lead"><a href="{{ url }}">{{ title }}</a></p>
-					<div class="summary">{{{ summary }}}</div>
-					<p>
-					{% foreach tags %}
-						<a href="{{ value }}.html"><span class="label label-default">{{ value }}</span></a>  
-					{% endforeach %}
-					</p>
-					<hr/>
-				{% endforeach %}
-			</div>
-			<div class="col-md-3 col-md-offset-1">
-				{% include subscribe %}
-				<div class="list-group">
+<div class="container">
+	<ol class="breadcrumb">
+		<li class="active">Home</li>
+	</ol>
+	<div class="row">
+		<div class="col-md-8">		
+			{% foreach posts %}
+			<div class="meta">{{ date }}</div>
+			<p class="lead"><a href="{{ url }}">{{ title }}</a></p>
+			<div class="summary">{{{ summary }}}</div>
+			<p>
+			{% foreach tags %}
+			<a href="{{ value }}.html"><span class="label label-default">{{ value }}</span></a>  
+			{% endforeach %}
+			</p>
+			<hr/>
+			{% endforeach %}
+		</div>
+		<div class="col-md-3 col-md-offset-1">
+			{% include subscribe %}
+			<div class="list-group">
 				{% foreach pages %}
-					<a class="list-group-item" href="{{ url }}">{{ title }}</a>
+				<a class="list-group-item" href="{{ url }}">{{ title }}</a>
 				{% endforeach %}
 				{% foreach tags %}
-					<a class="list-group-item" href="{{ value }}.html">{{ value }}</a>
+				<a class="list-group-item" href="{{ value }}.html">{{ value }}</a>
 				{% endforeach %}
-				</div>
-				{% include baker %}
 			</div>
+			{% include baker %}
 		</div>
-		{% include footer %}
 	</div>
+	{% include footer %}
+</div>
 </body>
 </html>
