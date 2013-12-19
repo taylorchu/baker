@@ -3,3 +3,4 @@ author: author
 site.sub: yet another blog
 site.url: out
 email: email@example.org
+disqus.shortname: bakerbash
