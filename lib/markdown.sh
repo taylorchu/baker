@@ -188,9 +188,15 @@ _audio() {
 }
 
 _video() {
-	sed \
-	-e 's|\[video\](\([a-zA-Z0-9-]\{11\}\))|<div id="\1"></div><script>jwplayer("\1").setup({file: "http://www.youtube.com/watch?v=\1", image: "http://img.youtube.com/vi/\1/hqdefault.jpg"});</script>|g' \
-	-e "s|\[video\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp4\", image: \"$CONTENT_DIR/\1.jpg\"});</script>|g"
+	sed "s|\[video\](\([^)]\+\))|<div id=\"\1\"></div><script>jwplayer(\"\1\").setup({file: \"$CONTENT_DIR/\1.mp4\", image: \"$CONTENT_DIR/\1.jpg\"});</script>|g"
+}
+
+_youtube() {
+	sed 's|\[youtube\](\([^)]\+\))|<div id="\1"></div><script>jwplayer("\1").setup({file: "http://www.youtube.com/watch?v=\1", image: "http://img.youtube.com/vi/\1/hqdefault.jpg"});</script>|g'
+}
+
+_vimeo() {
+	sed 's|\[vimeo\](\([^)]\+\))|<iframe src="http://player.vimeo.com/video/\1" style="width: 480px; height: 270px; border-width: 0; overflow: hidden" allowfullscreen></iframe>|g'
 }
 
 _iframe() {
@@ -198,7 +204,7 @@ _iframe() {
 }
 
 _markdown() {
-	_ul | _ol | _blockquote | _pre | _strong | _em | _iframe | _audio | _video | _img | _a | _code | _hr | _h | _p
+	_ul | _ol | _blockquote | _pre | _strong | _em | _iframe | _audio | _youtube | _vimeo | _video | _img | _a | _code | _hr | _h | _p
 }
 
 markdown() {

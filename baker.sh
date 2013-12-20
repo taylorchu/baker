@@ -32,6 +32,7 @@ case "$1" in
         title="$(date +%Y-%m-%d)-$(slug ${*:2})"
         echo "$POST_DIR/$title.md"
         cat > "$POST_DIR/$title.md" <<EOF
+---
 title: ${*:2}
 date: $(date +"%Y-%m-%d %H:%M")
 tags:
@@ -55,6 +56,7 @@ EOF
         fi
         echo "$PAGE_DIR/$title.md"
         cat > "$PAGE_DIR/$title.md" <<EOF
+---
 title: ${*:2}
 date: $(date +"%Y-%m-%d %H:%M")
 meta: 
@@ -71,7 +73,7 @@ EOF
             echo "ffmpeg not found"
             exit 1
         fi
-        if [[ "$2" =~ ^(.*/)?([^/]+)\.[^.]+$ ]]; then
+        if [[ "$2" =~ ^(.*/)?([^/]+)\.[[:alnum:]]+$ ]]; then
             filename="$(slug "${BASH_REMATCH[2]}")"
             ffmpeg -i "$2" -vcodec h264 -acodec aac -strict -2 "$CONTENT_DIR/$filename.mp4" -loglevel warning && \
             ffmpeg -ss 00:00:01 -i "$CONTENT_DIR/$filename.mp4" -vframes 1 "$CONTENT_DIR/$filename.jpg" -loglevel warning && \
@@ -84,7 +86,7 @@ EOF
             echo "ffmpeg not found"
             exit 1
         fi
-        if [[ "$2" =~ ^(.*/)?([^/]+)\.[^.]+$ ]]; then
+        if [[ "$2" =~ ^(.*/)?([^/]+)\.[[:alnum:]]+$ ]]; then
             filename="$(slug "${BASH_REMATCH[2]}")"
             ffmpeg -i "$2" -acodec mp3 "$CONTENT_DIR/$filename.mp3" -loglevel warning && \
             echo '!'"[audio]($filename)"
