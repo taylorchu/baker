@@ -82,8 +82,12 @@ _p() {
 			((in_other_tag++))
 		fi
 	done < <(regex_offset \
-		'</\?ol>'\
-		'</\?ul>'\
+		'<iframe ' \
+		'</iframe>' \
+		'<div ' \
+		'</div>' \
+		'</\?ol>' \
+		'</\?ul>' \
 		'</\?pre>' \
 		'</\?blockquote>' \
 		'</\?h[1-6]>' \
