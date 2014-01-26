@@ -39,5 +39,5 @@ regex_offset() {
 		pat+=(-e "$1")
 		shift
 	done
-	LANG= sed 's|[^\x00-\x7F]\+| |g' | grep -b -o "${pat[@]}"
+	sed 's|[^ -~]| |g' | grep -b -o "${pat[@]}"
 }
