@@ -6,7 +6,7 @@ trim() {
 
 # convert string to hook
 slug() {
-    tr -d [:cntrl:][:punct:] <<< "$*" | tr -s [:space:] - | tr [:upper:] [:lower:]
+    tr -cd '[:alnum:][:space:]' <<< "$*" | tr -s '[:space:]' - | tr '[:upper:]' '[:lower:]'
 }
 
 html_escape() {
@@ -33,11 +33,12 @@ newline_unescape() {
 	echo -e "$(cat)"
 }
 
+# TODO: fix utf-8
 regex_offset() {
 	local pat=()
 	while [[ "$1" ]]; do
 		pat+=(-e "$1")
 		shift
 	done
-	sed 's|[^ -~]| |g' | grep -b -o "${pat[@]}"
+	grep -b -o "${pat[@]}"
 }

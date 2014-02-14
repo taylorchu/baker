@@ -34,7 +34,7 @@ list_control() {
 					local offset
 					local tag
 					local var
-					IFS=: read -r offset tag var <<<"$(stack_peek)"
+					IFS=: read -r offset tag var < <(stack_peek)
 					local end="${BASH_REMATCH[1]}"
 					local start="${end:3}"
 					[[ "$tag" == "$start" ]] && stack_pop || debug "not expected tag: $tag"
