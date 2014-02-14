@@ -200,11 +200,11 @@ _youtube() {
 }
 
 _vimeo() {
-	sed 's|\[vimeo\](\([^)]\+\))|<iframe src="http://player.vimeo.com/video/\1" style="width: 480px; height: 270px; border-width: 0; overflow: hidden" allowfullscreen></iframe>|g'
+	sed 's|\[vimeo\](\([^)]\+\))|<iframe src="http://player.vimeo.com/video/\1" style="width: 480px; max-width: 100%; height: 270px; border-width: 0; overflow: hidden" allowfullscreen></iframe>|g'
 }
 
 _iframe() {
-	sed 's|\[iframe \([^x]\+\)x\([^]]\+\)\](\([^)]\+\))|<iframe style="width: \1; height: \2; border-width: 0; overflow: hidden" src="\3"></iframe>|g'
+	sed 's|\[iframe \([^x]\+\)x\([^]]\+\)\](\([^)]\+\))|<iframe style="width: \1; max-width: 100%; height: \2; border-width: 0; overflow: hidden" src="\3"></iframe>|g'
 }
 
 _markdown() {
