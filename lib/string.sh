@@ -11,7 +11,7 @@ slug() {
 
 html_escape() {
 	sed \
-	-e 's|&|\&amp|g' \
+	-e 's|&|\&amp;|g' \
 	-e 's|<|\&lt;|g' \
 	-e 's|>|\&gt;|g' \
 	-e 's|'\''|\&apos;|g' \
