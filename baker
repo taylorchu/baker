@@ -1,0 +1,266 @@
+#!/bin/bash
+
+#
+# config
+#
+
+# POST_DIR stores all post markdown files
+readonly POST_DIR=post
+
+# OUT_DIR stores all compiled html
+readonly OUT_DIR=out
+
+# LAYOUT_DIR stores all layout markdown files and other resources
+readonly LAYOUT_DIR=layout
+
+#
+# helper
+#
+
+# headers prints the header of a markdown file
+headers() {
+	awk '/^---$/ { c++; next } c == 1'
+}
+
+# header prints a specific header value
+header() {
+	headers | grep "^$1: " | cut -d ' ' -f 2-
+}
+
+# body prints the body of a markdown file
+body() {
+	awk '/^---$/ { c++; next } c >= 2'
+}
+
+# slug creates a friendly URL like 'hello-world'
+slug() {
+	tr -cd '[:alnum:] \n' | tr -s ' ' - | tr '[:upper:]' '[:lower:]' | sed 's|^-*||;s|-*$||'
+}
+
+#
+# template
+#
+
+# first_block gets the first if/for block location
+first_block() {
+	local c
+	local tag
+	local start
+	local lines
+	local i
+	readarray -t lines
+
+	# counter is used to find the matching @end
+	for (( i=0; i < ${#lines[@]}; i++ )); do
+		case "${lines[i]}" in
+		@if*)
+			if (( c == 0 )); then
+				tag=if
+				start=$((i+1))
+			fi
+			(( c++ ))
+			;;
+		@for*)
+			if (( c == 0 )); then
+				tag=for
+				start=$((i+1))
+			fi
+			(( c++ ))
+			;;
+		@end)
+			# @end is found before any starting tag
+			(( c == 0 )) && usage
+			(( c-- ))
+			if (( c == 0)); then
+				# the matching @end is found, print "tag:start:end"
+				echo "$tag:$start:$((i+1))"
+				return 0
+			fi
+			;;
+		esac
+	done
+
+	return 0
+}
+
+# find_submatch prints all occurrences of the first submatch
+find_submatch() {
+	local s="$1"
+	while [[ "$s" =~ $2 ]]; do
+		echo "${BASH_REMATCH[1]}"
+		s="${s##*${BASH_REMATCH[1]}}"
+	done
+}
+
+# html_escape escapes html special characters
+html_escape() {
+	sed 's|&|\&amp;|g; s|<|\&lt;|g; s|>|\&gt;|g; s|'\''|\&apos;|g; s|"|\&quot;|g;'
+}
+
+# render_inline handles @include and @cmd, and evaluates variables
+render_inline() {
+	local lines
+	local line
+	local matches
+	local match
+	readarray -t lines
+	for line in "${lines[@]}"; do
+		if [[ "$line" =~ ^@include\ ([a-z_]+)$ ]]; then
+			render_file "$LAYOUT_DIR/${BASH_REMATCH[1]}.md"
+		elif [[ "$line" =~ ^@cmd\ (.*)$ ]]; then
+			# only stdout is used, and stderr is ignored
+			${BASH_REMATCH[1]} 2>/dev/null
+		else
+			readarray -t matches < <(find_submatch "$line" '\{\{ ([a-z_]+) \}\}')
+			for match in "${matches[@]}"; do
+				line="${line//"{{ $match }}"/"$(html_escape <<< "${!match}")"}"
+			done
+			echo "$line"
+		fi
+	done
+}
+
+# render_if handles @if
+render_if() {
+	local lines
+	local line
+	readarray -t lines
+	[[ "${lines[0]}" =~ ^@if\ ('!')?([a-z_]+)$ ]] || return 1
+
+	# skip render on undefined_var or !defined_var
+	if [[ "${!BASH_REMATCH[2]}" ]]; then
+		[[ "${BASH_REMATCH[1]}" == '!' ]] && return 1
+	else
+		[[ "${BASH_REMATCH[1]}" == '!' ]] || return 1
+	fi
+
+	# recursively render the inner block
+	for line in "${lines[@]}"; do
+		echo "$line"
+	done | sed '1d; $d' | render
+}
+
+# render_for handles @for
+render_for() {
+	local lines
+	local line
+	local idx
+	local var
+	readarray -t lines
+	[[ "${lines[0]}" =~ ^@for\ ([a-z_]+)\ in\ ([a-z_]+)$ ]] || return 1
+	# an array "posts" is stored as "posts_1", "posts_2" ...
+	for (( idx=1; ; idx++ )); do
+		var="${BASH_REMATCH[2]}_$idx"
+		[[ "${!var}" ]] || break
+
+		# define element in the loop
+		declare "${BASH_REMATCH[1]}"="${!var}"
+
+		# recursively render the inner block
+		for line in "${lines[@]}"; do
+			echo "$line"
+		done | sed '1d; $d' | render
+	done
+}
+
+# render handles general template from stdin
+render() {
+	local input="$(cat)"
+	local tag
+	local start
+	local end
+
+	IFS=: read -r tag start end < <(first_block <<< "$input")
+	if [[ "$tag" ]]; then
+		# render inline before the first block
+		(( start > 1 )) && sed "1,$((start-1))!d" <<< "$input" | render_inline
+
+		# handle first block
+		case "$tag" in
+			if)
+				sed "$start,$end!d" <<< "$input" | render_if
+				;;
+			for)
+				sed "$start,$end!d" <<< "$input" | render_for
+				;;
+		esac
+
+		# recursively handle the rest of the template
+		sed "$((end+1)),\$!d" <<< "$input" | render
+	else
+		# if the first block is not found, just render inline
+		render_inline <<< "$input"
+	fi
+}
+
+# render_file renders a specific file (with its parent layout) recursively
+render_file() {
+	local vars
+	local var
+	local yield
+	local f="$1"
+	while [[ -f "$f" ]]; do
+		readarray -t vars < <(headers < "$f" | cut -d : -f 1)
+		for var in "${vars[@]}"; do
+			declare "$var"="$(header "$var" < "$f")"
+		done
+		yield="$(body < "$f" | render | "$SCRIPT_DIR/Markdown.pl")"
+		f="$LAYOUT_DIR/$(header layout < "$f").md"
+	done
+	echo "$yield"
+}
+
+#
+# usage
+#
+usage() {
+	cat <<-EOF
+	baker
+	  post [title]  draft a post
+	  bake          ship all posts
+	EOF
+	exit 1
+}
+
+# absolute dir path of this script
+readonly SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+(( $# == 0 )) && usage
+
+case "$1" in
+bake)
+	rm -rf "$OUT_DIR"
+	mkdir -p "$OUT_DIR" "$POST_DIR"
+
+	time for md in "$POST_DIR"/*.md; do
+		# if there is no post
+		[[ -f "$md" ]] || continue
+		# skip drafts
+		[[ "$(header draft < "$md")" == false ]] || continue
+
+		render_file "$md" > "$OUT_DIR/$(basename "$md" .md).html"
+	done
+	;;
+post)
+	readonly title="${@:2}"
+	[[ "$title" ]] || usage
+
+	mkdir -p "$POST_DIR"
+	readonly post_file="$POST_DIR/$(date +%Y-%m-%d)-$(slug <<< "$title").md"
+	cat > "$post_file" <<-EOF
+	---
+	title: $title
+	date: $(date +"%Y-%m-%d %H:%M")
+	tags:
+	layout: post
+	draft: true
+	---
+	EOF
+
+	echo "$post_file"
+	[[ "$EDITOR" ]] && $EDITOR "$post_file"
+	;;
+*)
+	usage
+	;;
+esac

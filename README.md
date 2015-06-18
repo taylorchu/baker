@@ -1,61 +1,69 @@
 # baker, the real static blog generator in bash
+
 ![baker](http://i.imgur.com/Tngl5Vv.png)
-very concise and simple.
-![thumb](http://i.imgur.com/3RMqeR0.jpg?1)
 
-## benefit
-1. easily hook any other command's stdout and put it into your blog.  
-i.e. {% snippet cal %} gives a simple calendar
+It is under a big redesign.
 
-2. less dependency: all are covered by coreutil
-3. experiment with your mac/linux
-4. only re-bake if required
+## Why
 
-## usage
+- simple: bring your own editor
+- fun: use any command in your blog
+- portable: blog on almost any linux/mac distribution
 
-```
-baker.sh
-    post [title]        create new post
-    page [title]        create new post
-    bake [--force]      ship static page
+## Template redesigned
+
+The new template engine is much faster (and smaller) than the previous version. It now uses bash's scope as its context.
+
+### variable
+
+Variable identifier should only use `[a-z_]`. Notice that any number is not allowed in a variable name.
 
 ```
-1. ./baker.sh post I like the baker's bread
-2. baker will turn that into a markdown file in posts/, so you can use your editor. vim it.
-3. ./baker bake
-4. profit!
+{{ var_name }} # html_escape
 
-## template (bash)
+{{{ raw_var_name }}} # raw
 
-1. `dry` and simple.
-2. all html escapes by default. use `{{{   }}}` to skip html escaping
-
-```
-# if: {% if var %} ... {% endif %} 
-# foreach: {% foreach var %} ... {% endforeach %}
-# include: {% include name%}
-# escape_var: {{ name }}
-# var: {{{ name }}}
-## snippet: {% snippet name %}
-
+{{{ yield }}} # embed the current layout output to its parent
 ```
 
-## markdown (bash)
+### if
 
-beautiful and maintainable implementation in bash
+Notice that spaces are not allowed between `!` and `var`.
 
+```
+@if !var
+	...
+@end
+```
 
-## contribute
-please:
+### for
 
-1. improve code simplicity and performance
-2. share useful snippet
-3. improve bake chain
-4. refactor, refactor
+```
+@for element in array
+	...
+@end
+```
 
-## note
-snippets are dangerous.
+### include
 
-## license & author
-taylorchu, gpl2 licensed
+`@include` includes a partial from `$LAYOUT_DIR/$filename.md`. Notice that `.md` is already added.
 
+```
+@include filename
+```
+
+### cmd
+
+`@cmd` uses any command's stdout and ignore its stderr. For example, `@cmd cal` will get a calendar.
+
+```
+@cmd ...
+```
+
+## Markdown
+
+It currently uses the implementation from [Daring Fireball](http://daringfireball.net/projects/markdown/).
+
+## License
+
+This software is made by taylorchu, and is released under GPL2.

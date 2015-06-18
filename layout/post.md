@@ -1,0 +1,9 @@
+---
+---
+{{ title }}
+
+{{ date }}
+
+{{ draft }}
+
+{{ yield }}
