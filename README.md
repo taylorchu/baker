@@ -19,11 +19,9 @@ The new template engine is much faster (and smaller) than the previous version. 
 Variable identifier should only use `[a-z_]`. Notice that any number is not allowed in a variable name.
 
 ```
-{{ var_name }} # html_escape
+{{ var_name }}
 
-{{{ raw_var_name }}} # raw
-
-{{{ yield }}} # embed the current layout output to its parent
+{{ yield }} # embed the current layout output to its parent
 ```
 
 ### if

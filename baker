@@ -92,11 +92,6 @@ find_submatch() {
 	done
 }
 
-# html_escape escapes html special characters
-html_escape() {
-	sed 's|&|\&amp;|g; s|<|\&lt;|g; s|>|\&gt;|g; s|'\''|\&apos;|g; s|"|\&quot;|g;'
-}
-
 # render_inline handles @include and @cmd, and evaluates variables
 render_inline() {
 	local lines
@@ -106,15 +101,18 @@ render_inline() {
 	readarray -t lines
 	for line in "${lines[@]}"; do
 		if [[ "$line" =~ ^@include\ ([a-z_]+)$ ]]; then
+			# @include renders partial
 			render_file "$LAYOUT_DIR/${BASH_REMATCH[1]}.md"
 		elif [[ "$line" =~ ^@cmd\ (.*)$ ]]; then
-			# only stdout is used, and stderr is ignored
+			# @cmd only uses stdout
 			${BASH_REMATCH[1]} 2>/dev/null
 		else
+			# evaluate variables
 			readarray -t matches < <(find_submatch "$line" '\{\{ ([a-z_]+) \}\}')
 			for match in "${matches[@]}"; do
-				line="${line//"{{ $match }}"/"$(html_escape <<< "${!match}")"}"
+				line="${line//"{{ $match }}"/"${!match}"}"
 			done
+
 			echo "$line"
 		fi
 	done
@@ -238,6 +236,7 @@ bake)
 		# skip drafts
 		[[ "$(header draft < "$md")" == false ]] || continue
 
+		echo "$md"
 		render_file "$md" > "$OUT_DIR/$(basename "$md" .md).html"
 	done
 	;;
