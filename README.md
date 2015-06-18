@@ -16,7 +16,7 @@ The new template engine is much faster (and smaller) than the previous version. 
 
 ### variable
 
-Variable identifier should only use `[a-z_]`. Notice that any number is not allowed in a variable name.
+Variable identifier should only use `[A-Za-z_]`. Notice that any number is not allowed in a variable name.
 
 ```
 {{ var_name }}

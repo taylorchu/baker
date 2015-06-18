@@ -1,0 +1,55 @@
+@media (min-width: 768px) {
+	.container {
+		max-width: 700px;
+	}
+}
+body {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+h1,
+h2,
+h3,
+h4 {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+	letter-spacing: -0.02em;
+	font-weight: bold;
+}
+article p {
+	margin-bottom: 30px;
+	font-size: 22px;
+	line-height: 1.5;
+	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+	letter-spacing: .01rem;
+}
+header,
+footer {
+	margin-bottom: 30px;
+}
+.post-date,
+.author-email,
+.author-desc {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+	font-size: 14px;
+  line-height: 1.3;
+  margin-bottom: 4px;
+	letter-spacing: -0.02em;
+}
+.post-date {
+	color: #7f929c;
+}
+.post-date time {
+	font-weight: bold;
+}
+.author-avatar {
+	width: 60px;
+	height: 60px;
+}
+.author-name {
+	font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+	letter-spacing: -0.02em;
+	font-weight: bold;
+	font-size: 18px;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
