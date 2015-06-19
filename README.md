@@ -21,7 +21,7 @@ Variable identifier should only use `[A-Za-z_]`. Notice that any number is not a
 ```
 {{ var_name }}
 
-{{ yield }} # embed the current layout output to its parent
+{{ content }} # embed child layout output
 ```
 
 ### if
@@ -34,10 +34,10 @@ Notice that spaces are not allowed between `!` and `var`.
 @end
 ```
 
-### for
+### each
 
 ```
-@for element in array
+@each array
 	...
 @end
 ```

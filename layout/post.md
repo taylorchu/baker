@@ -20,7 +20,7 @@
 	</header>
 
 	<article>
-		{{ yield }}
+		{{ content }}
 	</article>
 
 	<footer id="author" class="row">

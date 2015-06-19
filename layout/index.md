@@ -16,11 +16,11 @@
 
 	<section class="row">
 		<section class="col-md-6">
-@for post in posts
+@each posts
 			<article>
-				<h2><a href="{{ post_id }}.html">{{ post_title }}</a></h2>
-				<p class="post-date">Published on <time>{{ post_date }}</time></p>
-				<p>{{ post_summary }}</p>
+				<h2><a href="{{ id }}.html">{{ title }}</a></h2>
+				<p class="post-date">Published on <time>{{ date }}</time></p>
+				<p>{{ summary }}</p>
 			</article>
 @end
 		</section>

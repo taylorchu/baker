@@ -80,9 +80,9 @@ first_block() {
 			fi
 			(( c++ ))
 			;;
-		@for*)
+		@each*)
 			if (( c == 0 )); then
-				tag=for
+				tag=each
 				start=$((i+1))
 			fi
 			(( c++ ))
@@ -96,7 +96,7 @@ first_block() {
 			;;
 		@end)
 			# @end is found before any starting tag
-			(( c == 0 )) && usage
+			(( c == 0 )) && return 1
 			(( c-- ))
 			if (( c == 0)); then
 				# the matching @end is found, print `tag:start:end`
@@ -132,7 +132,7 @@ render_inline() {
 			# evaluate variables
 			readarray -t matches < <(find_submatch "$line" "\{\{ ($VAR_ID) \}\}")
 			for match in "${matches[@]}"; do
-				line="${line//"{{ $match }}"/"${!match}"}"
+				line="${line//"{{ $match }}"/${!match}}"
 			done
 
 			echo "$line"
@@ -160,8 +160,8 @@ render_if() {
 	done | render
 }
 
-# render_for handles @for
-render_for() {
+# render_each handles @each
+render_each() {
 	local lines
 	local line
 	local idx
@@ -169,16 +169,16 @@ render_for() {
 	local vars
 	local var
 	readarray -t lines
-	[[ "${lines[0]}" =~ ^@for\ ($VAR_ID)\ in\ ($VAR_ID)$ ]] || return 1
+	[[ "${lines[0]}" =~ ^@each\ ($VAR_ID)$ ]] || return 1
 	# an array `posts` is stored as `posts_0_`, `posts_1_` ...
 	for (( idx=0; ; idx++ )); do
-		array="${BASH_REMATCH[2]}_${idx}_"
+		array="${BASH_REMATCH[1]}_${idx}_"
 		readarray -t vars < <(compgen -v | grep "^$array")
 		(( ${#vars[@]} == 0 )) && break
 
 		# define element in the loop context
 		for var in "${vars[@]}"; do
-			declare "${var/#"$array"/"${BASH_REMATCH[1]}_"}"="${!var}"
+			declare "${var#$array}"="${!var}"
 		done
 
 		# recursively render the inner block
@@ -210,8 +210,8 @@ render() {
 			if)
 				render_if
 				;;
-			for)
-				render_for
+			each)
+				render_each
 				;;
 			cmd)
 				render_cmd
@@ -230,20 +230,20 @@ render() {
 render_file() {
 	local vars
 	local var
-	local yield
+	local content
 	local f="$1"
 	while [[ -f "$f" ]]; do
 		readarray -t vars < <(headers < "$f" | cut -d : -f 1)
 		for var in "${vars[@]}"; do
 			declare "$var"="$(header "$var" < "$f")"
 		done
-		yield="$(body < "$f" | render)"
+		content="$(body < "$f" | render)"
 
 		# use markdown for posts
-		[[ "$f" == "$POST_DIR"/* ]] && yield="$("$SCRIPT_DIR/Markdown.pl" <<< "$yield")"
+		[[ "$f" == "$POST_DIR"/* ]] && content="$("$SCRIPT_DIR/Markdown.pl" <<< "$content")"
 		f="$LAYOUT_DIR/$(header layout < "$f").md"
 	done
-	echo "$yield"
+	echo "$content"
 }
 
 #
