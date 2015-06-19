@@ -25,7 +25,8 @@ article ol {
 	letter-spacing: .01rem;
 }
 header,
-footer {
+footer,
+article {
 	margin-bottom: 30px;
 }
 .post-date,
