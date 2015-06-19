@@ -15,7 +15,9 @@ h4 {
 	letter-spacing: -0.02em;
 	font-weight: bold;
 }
-article p {
+article p,
+article ul,
+article ol {
 	margin-bottom: 30px;
 	font-size: 22px;
 	line-height: 1.5;
