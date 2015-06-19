@@ -35,6 +35,10 @@
 			<img src="image/baker.png" />
 		</section>
 	</section>
+
+	<footer class="text-center">
+		A <a href="http://github.com/taylorchu/baker">baker</a> blog.
+	</footer>
 </main>
 
 </html>
