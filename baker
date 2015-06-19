@@ -149,9 +149,9 @@ render_if() {
 
 	# skip render on undefined_var or !defined_var
 	if [[ "${!BASH_REMATCH[2]}" ]]; then
-		[[ "${BASH_REMATCH[1]}" == '!' ]] && return 1
+		[[ "${BASH_REMATCH[1]}" == '!' ]] && return 0
 	else
-		[[ "${BASH_REMATCH[1]}" == '!' ]] || return 1
+		[[ "${BASH_REMATCH[1]}" == '!' ]] || return 0
 	fi
 
 	# recursively render the inner block
