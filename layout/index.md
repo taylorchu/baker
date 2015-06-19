@@ -25,14 +25,14 @@
 @end
 		</section>
 		<section class="col-md-2">
-			<img class="author-avatar pull-right" src="http://www.gravatar.com/avatar/{{ AUTHOR_EMAIL_HASH }}" />
+			<img alt="author-avatar" class="author-avatar pull-right" src="http://www.gravatar.com/avatar/{{ AUTHOR_EMAIL_HASH }}" />
 		</section>
 		<section class="col-md-4">
 			<p class="author-name">{{ AUTHOR_NAME }}</p>
 			<p class="author-desc">{{ AUTHOR_DESC }}</p>
 			<p class="author-email">{{ AUTHOR_EMAIL }}</p>
 
-			<img src="image/baker.png" />
+			<img alt="logo-baker" src="image/baker.png" />
 		</section>
 	</section>
 

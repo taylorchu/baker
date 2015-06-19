@@ -28,7 +28,7 @@
 			<p class="post-date">Published on <time>{{ date }}</time></p>
 		</section>
 		<section class="col-md-2">
-			<img class="author-avatar pull-right" src="http://www.gravatar.com/avatar/{{ AUTHOR_EMAIL_HASH }}" />
+			<img alt="author-avatar" class="author-avatar pull-right" src="http://www.gravatar.com/avatar/{{ AUTHOR_EMAIL_HASH }}" />
 		</section>
 		<section class="col-md-5">
 			<p class="author-name">{{ AUTHOR_NAME }}</p>
