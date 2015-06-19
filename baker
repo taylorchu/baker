@@ -163,16 +163,21 @@ render_for() {
 	local lines
 	local line
 	local idx
+	local array
+	local vars
 	local var
 	readarray -t lines
 	[[ "${lines[0]}" =~ ^@for\ ($VAR_ID)\ in\ ($VAR_ID)$ ]] || return 1
 	# an array `posts` is stored as `posts_1`, `posts_2` ...
 	for (( idx=1; ; idx++ )); do
-		var="${BASH_REMATCH[2]}_$idx"
-		[[ "${!var}" ]] || break
+		array="${BASH_REMATCH[2]}_$idx"
+		readarray -t vars < <(compgen -v | grep "^$array")
+		(( ${#vars[@]} == 0 )) && break
 
-		# define element in the loop
-		declare "${BASH_REMATCH[1]}"="${!var}"
+		# define element in the loop context
+		for var in "${vars[@]}"; do
+			declare "${var/#"$array"/"${BASH_REMATCH[1]}"}"="${!var}"
+		done
 
 		# recursively render the inner block
 		for line in "${lines[@]}"; do
@@ -253,15 +258,25 @@ bake)
 	[[ -d "$POST_DIR" ]] || usage
 	[[ -d "$PUBLIC_DIR" ]] && cp -r "$PUBLIC_DIR"/. "$OUTPUT_DIR"
 
-	time for md in "$POST_DIR"/*.md; do
-		# if there is no post
-		[[ -f "$md" ]] || continue
-		# skip drafts
-		[[ "$(header draft < "$md")" == false ]] || continue
+	posts=( "$POST_DIR"/*.md )
 
-		echo "$md"
-		render_file "$md" > "$OUTPUT_DIR/$(basename "$md" .md).html"
+	time for (( i=0; i < "${#posts[@]}"; i++ )); do
+		id="$(basename "${posts[$i]}" .md)"
+		# if there is no post
+		[[ -f "$POST_DIR/$id.md" ]] || continue
+		# skip drafts
+		[[ "$(header draft < "$POST_DIR/$id.md")" == false ]] || continue
+
+		echo "$id"
+		render_file "$POST_DIR/$id.md" > "$OUTPUT_DIR/$id.html"
+
+		declare "posts_$((i+1))_id"="$id"
+		declare "posts_$((i+1))_title"="$(header title < "$POST_DIR/$id.md")"
+		declare "posts_$((i+1))_date"="$(header date < "$POST_DIR/$id.md")"
+		declare "posts_$((i+1))_summary"="$(header summary < "$POST_DIR/$id.md")"
 	done
+
+	render_file "$LAYOUT_DIR/index.md" > "$OUTPUT_DIR/index.html"
 	;;
 post)
 	readonly title="${@:2}"
@@ -276,6 +291,7 @@ post)
 	tags:
 	layout: post
 	draft: true
+	summary:
 	---
 	EOF
 
