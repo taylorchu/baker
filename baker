@@ -61,7 +61,7 @@ slug() {
 # template
 #
 
-# first_block gets the first if/for block location
+# first_block gets the first block location
 first_block() {
 	local c
 	local tag
@@ -87,6 +87,13 @@ first_block() {
 			fi
 			(( c++ ))
 			;;
+		@cmd)
+			if (( c == 0 )); then
+				tag=cmd
+				start=$((i+1))
+			fi
+			(( c++ ))
+			;;
 		@end)
 			# @end is found before any starting tag
 			(( c == 0 )) && usage
@@ -99,8 +106,6 @@ first_block() {
 			;;
 		esac
 	done
-
-	return 0
 }
 
 # find_submatch prints all occurrences of the first submatch
@@ -108,11 +113,11 @@ find_submatch() {
 	local s="$1"
 	while [[ "$s" =~ $2 ]]; do
 		echo "${BASH_REMATCH[1]}"
-		s="${s##*${BASH_REMATCH[0]}}"
+		s="${s#*${BASH_REMATCH[0]}}"
 	done
 }
 
-# render_inline handles @include and @cmd, and evaluates variables
+# render_inline handles @include, and evaluates variables
 render_inline() {
 	local lines
 	local line
@@ -123,9 +128,6 @@ render_inline() {
 		if [[ "$line" =~ ^@include\ ($VAR_ID)$ ]]; then
 			# @include renders partial
 			render_file "$LAYOUT_DIR/${BASH_REMATCH[1]}.md"
-		elif [[ "$line" =~ ^@cmd\ (.*)$ ]]; then
-			# @cmd only uses stdout
-			${BASH_REMATCH[1]} 2>/dev/null
 		else
 			# evaluate variables
 			readarray -t matches < <(find_submatch "$line" "\{\{ ($VAR_ID) \}\}")
@@ -153,9 +155,9 @@ render_if() {
 	fi
 
 	# recursively render the inner block
-	for line in "${lines[@]}"; do
+	for line in "${lines[@]:1:${#lines[@]}-2}"; do
 		echo "$line"
-	done | sed '1d; $d' | render
+	done | render
 }
 
 # render_for handles @for
@@ -180,15 +182,20 @@ render_for() {
 		done
 
 		# recursively render the inner block
-		for line in "${lines[@]}"; do
+		for line in "${lines[@]:1:${#lines[@]}-2}"; do
 			echo "$line"
-		done | sed '1d; $d' | render
+		done | render
 	done
+}
+
+# render_cmd handles @cmd
+render_cmd() {
+	source <(sed '1d; $d')
 }
 
 # render handles general template from stdin
 render() {
-	local input="$(cat)"
+	local input="$(< /dev/stdin)"
 	local tag
 	local start
 	local end
@@ -199,12 +206,15 @@ render() {
 		(( start > 1 )) && sed "1,$((start-1))!d" <<< "$input" | render_inline
 
 		# handle first block
-		case "$tag" in
+		sed "$start,$end!d" <<< "$input" | case "$tag" in
 			if)
-				sed "$start,$end!d" <<< "$input" | render_if
+				render_if
 				;;
 			for)
-				sed "$start,$end!d" <<< "$input" | render_for
+				render_for
+				;;
+			cmd)
+				render_cmd
 				;;
 		esac
 
@@ -260,7 +270,7 @@ bake)
 
 	posts=( "$POST_DIR"/*.md )
 
-	time for (( i=0; i < "${#posts[@]}"; i++ )); do
+	time for (( i=0; i < ${#posts[@]}; i++ )); do
 		id="$(basename "${posts[i]}" .md)"
 		# if there is no post
 		[[ -f "$POST_DIR/$id.md" ]] || continue
