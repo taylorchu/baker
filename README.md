@@ -52,10 +52,12 @@ Notice that spaces are not allowed between `!` and `var`.
 
 ### cmd
 
-`@cmd` uses any command's stdout and ignore its stderr. For example, `@cmd cal` will get a calendar.
+`@cmd` uses any command's stdout and ignore its stderr.
 
 ```
-@cmd ...
+@cmd
+	...
+@end
 ```
 
 ## Markdown
