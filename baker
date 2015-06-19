@@ -168,15 +168,15 @@ render_for() {
 	local var
 	readarray -t lines
 	[[ "${lines[0]}" =~ ^@for\ ($VAR_ID)\ in\ ($VAR_ID)$ ]] || return 1
-	# an array `posts` is stored as `posts_1`, `posts_2` ...
+	# an array `posts` is stored as `posts_0_`, `posts_1_` ...
 	for (( idx=0; ; idx++ )); do
-		array="${BASH_REMATCH[2]}_$idx"
+		array="${BASH_REMATCH[2]}_${idx}_"
 		readarray -t vars < <(compgen -v | grep "^$array")
 		(( ${#vars[@]} == 0 )) && break
 
 		# define element in the loop context
 		for var in "${vars[@]}"; do
-			declare "${var/#"$array"/"${BASH_REMATCH[1]}"}"="${!var}"
+			declare "${var/#"$array"/"${BASH_REMATCH[1]}_"}"="${!var}"
 		done
 
 		# recursively render the inner block
