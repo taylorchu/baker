@@ -277,7 +277,7 @@ bake)
 	[[ -d "$POST_DIR" ]] || usage
 	[[ -d "$PUBLIC_DIR" ]] && cp -r "$PUBLIC_DIR"/. "$OUTPUT_DIR"
 
-	readarray -t posts < <(find "$POST_DIR" -name '*.md')
+	readarray -t posts < <(find "$POST_DIR" -name '*.md' | sort -r)
 
 	idx=0
 	time for post in "${posts[@]}"; do
