@@ -19,7 +19,7 @@ The new template engine is much faster (and smaller) than the previous version. 
 Variable identifier should only use `[A-Za-z_]`. Notice that any number is not allowed in a variable name.
 
 ```
-{{ var_name }}
+{{ var }}
 
 {{ content }} # embed child layout output
 ```
@@ -83,7 +83,11 @@ posts_1_content=example2
 
 ```
 @cmd
-	...
+
+for i in {1..10}; do
+	echo "$i"
+done
+
 @end
 ```
 
