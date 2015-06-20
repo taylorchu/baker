@@ -36,9 +36,36 @@ Notice that spaces are not allowed between `!` and `var`.
 
 ### each
 
+`each` iterates an array. This is why a number is not allowed in a variable name.
+
+For example,
+
 ```
-@each array
-	...
+posts = [
+	{
+		"title": "first",
+		"content": "example1",
+	},
+	{
+		"title": "second",
+		"content": "example2",
+	},
+]
+```
+
+is encoded as:
+
+```
+posts_0_title=first
+posts_0_content=example1
+
+posts_1_title=second
+posts_1_content=example2
+```
+
+```
+@each posts
+	{{ title }} - {{ content }}
 @end
 ```
 

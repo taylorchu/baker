@@ -170,7 +170,6 @@ render_each() {
 	local var
 	readarray -t lines
 	[[ "${lines[0]}" =~ ^@each\ ($VAR_ID)$ ]] || return 1
-	# an array `posts` is stored as `posts_0_`, `posts_1_` ...
 	for (( idx=0; ; idx++ )); do
 		array="${BASH_REMATCH[1]}_${idx}_"
 		readarray -t vars < <(compgen -v | grep "^$array")
