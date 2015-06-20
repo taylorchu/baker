@@ -2,13 +2,19 @@
 
 ![baker](http://i.imgur.com/Tngl5Vv.png)
 
-It is under a big redesign.
-
 ## Why
 
-- simple: bring your own editor
-- fun: use any command in your blog
-- portable: blog on almost any linux/mac distribution
+- Simple: Bring your own editor
+- Fun: Use any command
+- Portable: Run on Linux
+
+## Feature
+
+- [x] Template
+- [x] Markdown
+- [ ] Video/Audio (ffmpeg)
+- [ ] Tag
+- [ ] RSS
 
 ## Template redesigned
 
@@ -36,7 +42,7 @@ Notice that spaces are not allowed between `!` and `var`.
 
 ### each
 
-`each` iterates an array. This is why a number is not allowed in a variable name.
+`@each` iterates an array. This is why a number is not allowed in a variable name.
 
 For example,
 
