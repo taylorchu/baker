@@ -206,17 +206,17 @@ render() {
 		(( start > 1 )) && sed "1,$((start-1))!d" <<< "$input" | render_inline
 
 		# handle first block
-		sed "$start,$end!d" <<< "$input" | case "$tag" in
-			if)
-				render_if
-				;;
-			each)
-				render_each
-				;;
-			cmd)
-				render_cmd
-				;;
-		esac
+		case "$tag" in
+		if)
+			render_if
+			;;
+		each)
+			render_each
+			;;
+		cmd)
+			render_cmd
+			;;
+		esac < <(sed "$start,$end!d" <<< "$input")
 
 		# recursively handle the rest of the template
 		sed "$((end+1)),\$!d" <<< "$input" | render
@@ -224,6 +224,18 @@ render() {
 		# if the first block is not found, just render inline
 		render_inline <<< "$input"
 	fi
+}
+
+# render_file_case uses markdown for posts, and uses render for templates
+render_file_case() {
+	case "$1" in
+	"$POST_DIR"/*)
+		"$SCRIPT_DIR/Markdown.pl"
+		;;
+	"$LAYOUT_DIR"/*)
+		render
+		;;
+	esac < <(body < "$1")
 }
 
 # render_file renders a specific file (with its parent layout) recursively
@@ -237,10 +249,8 @@ render_file() {
 		for var in "${vars[@]}"; do
 			declare "$var"="$(header "$var" < "$f")"
 		done
-		content="$(body < "$f" | render)"
+		content="$(render_file_case "$f")"
 
-		# use markdown for posts
-		[[ "$f" == "$POST_DIR"/* ]] && content="$("$SCRIPT_DIR/Markdown.pl" <<< "$content")"
 		f="$LAYOUT_DIR/$(header layout < "$f").md"
 	done
 	echo "$content"
@@ -268,22 +278,21 @@ bake)
 	[[ -d "$POST_DIR" ]] || usage
 	[[ -d "$PUBLIC_DIR" ]] && cp -r "$PUBLIC_DIR"/. "$OUTPUT_DIR"
 
-	posts=( "$POST_DIR"/*.md )
+	readarray -t posts < <(find "$POST_DIR" -name '*.md')
 
-	time for (( i=0; i < ${#posts[@]}; i++ )); do
-		id="$(basename "${posts[i]}" .md)"
-		# if there is no post
-		[[ -f "$POST_DIR/$id.md" ]] || continue
+	idx=0
+	time for post in "${posts[@]}"; do
+		id="$(basename "$post" .md)"
 		# skip drafts
-		[[ "$(header draft < "$POST_DIR/$id.md")" == false ]] || continue
+		[[ "$(header draft < "$post")" == false ]] || continue
 
 		echo "$id"
-		render_file "$POST_DIR/$id.md" > "$OUTPUT_DIR/$id.html"
-
-		declare "posts_${i}_id"="$id"
-		declare "posts_${i}_title"="$(header title < "$POST_DIR/$id.md")"
-		declare "posts_${i}_date"="$(header date < "$POST_DIR/$id.md")"
-		declare "posts_${i}_summary"="$(header summary < "$POST_DIR/$id.md")"
+		render_file "$post" > "$OUTPUT_DIR/$id.html"
+		declare "posts_${idx}_id"="$id"
+		declare "posts_${idx}_title"="$(header title < "$post")"
+		declare "posts_${idx}_date"="$(header date < "$post")"
+		declare "posts_${idx}_summary"="$(header summary < "$post")"
+		(( idx++ ))
 	done
 
 	render_file "$LAYOUT_DIR/index.md" > "$OUTPUT_DIR/index.html"

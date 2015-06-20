@@ -3,6 +3,7 @@ title: hello world!
 date: 2015-06-19T01:01:56Z
 layout: post
 draft: false
+summary: This is your first post.
 ---
 
 Welcome to Baker. This is your first post. Edit or delete it, then start blogging!
