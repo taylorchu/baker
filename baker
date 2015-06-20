@@ -54,7 +54,7 @@ body() {
 
 # slug creates a friendly URL like 'hello-world'
 slug() {
-	tr -cd '[:alnum:] \n' | tr -s ' ' - | tr '[:upper:]' '[:lower:]' | sed 's|^-*||;s|-*$||'
+	tr -cs '[:alnum:]\n' - | tr '[:upper:]' '[:lower:]' | sed 's|^-*||;s|-*$||'
 }
 
 #
