@@ -237,17 +237,23 @@ render_file_case() {
 	esac < <(body < "$1")
 }
 
-# render_file renders a specific file (with its parent layout) recursively
-render_file() {
+# export_headers reads markdown file headers
+export_headers() {
 	local vars
 	local var
+	readarray -t vars < <(headers < "$1" | cut -d : -f 1)
+	for var in "${vars[@]}"; do
+		# by default, declare is local
+		declare -g "$2$var"="$(header "$var" < "$1")"
+	done
+}
+
+# render_file renders a specific file (with its parent layout) recursively
+render_file() {
 	local content
 	local f="$1"
 	while [[ -f "$f" ]]; do
-		readarray -t vars < <(headers < "$f" | cut -d : -f 1)
-		for var in "${vars[@]}"; do
-			declare "$var"="$(header "$var" < "$f")"
-		done
+		export_headers "$f" ''
 		content="$(render_file_case "$f")"
 
 		f="$LAYOUT_DIR/$(header layout < "$f").md"
@@ -288,10 +294,7 @@ bake)
 		echo "$id"
 		render_file "$post" > "$OUTPUT_DIR/$id.html" &
 		declare "posts_${idx}_id"="$id"
-		readarray -t vars < <(headers < "$post" | cut -d : -f 1)
-		for var in "${vars[@]}"; do
-			declare "posts_${idx}_${var}"="$(header "$var" < "$post")"
-		done
+		export_headers "$post" "posts_${idx}_"
 		(( idx++ ))
 	done
 
