@@ -288,9 +288,10 @@ bake)
 		echo "$id"
 		render_file "$post" > "$OUTPUT_DIR/$id.html" &
 		declare "posts_${idx}_id"="$id"
-		declare "posts_${idx}_title"="$(header title < "$post")"
-		declare "posts_${idx}_date"="$(header date < "$post")"
-		declare "posts_${idx}_summary"="$(header summary < "$post")"
+		readarray -t vars < <(headers < "$post" | cut -d : -f 1)
+		for var in "${vars[@]}"; do
+			declare "posts_${idx}_${var}"="$(header "$var" < "$post")"
+		done
 		(( idx++ ))
 	done
 
