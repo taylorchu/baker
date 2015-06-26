@@ -26,6 +26,8 @@ readonly AUTHOR_NAME='baker'
 readonly AUTHOR_DESC='a very-experienced bread baker, who also loves planting trees.'
 readonly AUTHOR_EMAIL='email@example.org'
 readonly AUTHOR_EMAIL_HASH="$(md5sum <<< "$AUTHOR_NAME" | awk '{ print $1 }')"
+readonly AUTHOR_TWITTER='twitter'
+readonly AUTHOR_GITHUB='github'
 
 #
 # helper

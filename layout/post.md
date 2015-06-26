@@ -3,7 +3,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-@include bootstrap
 @include head
 <title>{{ title }} - {{ SITE_NAME }}</title>
 </head>
@@ -31,9 +30,7 @@
 			<img alt="author-avatar" class="author-avatar pull-right" src="http://www.gravatar.com/avatar/{{ AUTHOR_EMAIL_HASH }}" />
 		</section>
 		<section class="col-md-5">
-			<p class="author-name">{{ AUTHOR_NAME }}</p>
-			<p class="author-desc">{{ AUTHOR_DESC }}</p>
-			<p class="author-email">{{ AUTHOR_EMAIL }}</p>
+@include author
 		</section>
 	</footer>
 @include disqus
