@@ -86,7 +86,7 @@ posts_1_content=example2
 
 ### cmd
 
-`@cmd` uses any command's stdout and ignore its stderr.
+`@cmd` gets stdout from embedded bash script.
 
 ```
 @cmd
